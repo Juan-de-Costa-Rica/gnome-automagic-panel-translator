@@ -1,0 +1,7 @@
+# Compiled GSettings schemas (auto-generated)
+schemas/gschemas.compiled
+
+# Development/testing
+*.log
+*~
+.*.swp
