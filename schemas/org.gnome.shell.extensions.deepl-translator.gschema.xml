@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.deepl-translator" path="/org/gnome/shell/extensions/deepl-translator/">
+
+    <!-- DeepL API Key -->
+    <key name="api-key" type="s">
+      <default>''</default>
+      <summary>DeepL API Key</summary>
+      <description>Your DeepL API authentication key (free or pro tier)</description>
+    </key>
+
+    <!-- Default source language -->
+    <key name="default-source-lang" type="s">
+      <default>'EN'</default>
+      <summary>Default source language</summary>
+      <description>Default language to translate from (e.g., 'EN', 'ES', 'FR')</description>
+    </key>
+
+    <!-- Default target language -->
+    <key name="default-target-lang" type="s">
+      <default>'ES'</default>
+      <summary>Default target language</summary>
+      <description>Default language to translate to (e.g., 'EN', 'ES', 'FR')</description>
+    </key>
+
+  </schema>
+</schemalist>
