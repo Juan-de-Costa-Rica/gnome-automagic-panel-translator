@@ -1,0 +1,11 @@
+{
+  "uuid": "deepl-translator@juan-de-costa-rica",
+  "name": "DeepL Translator",
+  "description": "Quick translations using DeepL API. Translate text between languages without opening a separate window.",
+  "version": 1,
+  "shell-version": [
+    "48"
+  ],
+  "url": "https://github.com/juan-de-costa-rica/gnome-deepl-translator",
+  "settings-schema": "org.gnome.shell.extensions.deepl-translator"
+}
