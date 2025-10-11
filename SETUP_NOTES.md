@@ -1,12 +1,12 @@
 # Setup & Testing Notes
 
 ## Extension Status
-✅ Extension code complete with all features
-✅ Intelligent auto-detect translation implemented
-✅ Auto-copy to clipboard implemented
-✅ Multiple secondary languages (ES, IT, FR, DE, PT-BR)
-✅ Git repository on GitHub (main branch)
-✅ Installed to: ~/.local/share/gnome-shell/extensions/deepl-translator@juan-de-costa-rica/
+- Extension code complete with all features
+- Intelligent auto-detect translation implemented
+- Auto-copy to clipboard implemented
+- Multiple secondary languages (ES, IT, FR, DE, PT-BR)
+- Git repository on GitHub (main branch)
+- Installed to: ~/.local/share/gnome-shell/extensions/deepl-translator@juan-de-costa-rica/
 
 ## Quick Start
 

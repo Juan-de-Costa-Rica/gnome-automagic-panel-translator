@@ -3,15 +3,15 @@
 A GNOME Shell extension for quick translations using the DeepL API. No separate windows - just click the panel icon and translate instantly!
 
 ## Features
-- 🌐 Panel indicator for instant access
-- ⚡ Clipboard-based translation workflow (no typing needed!)
-- 🤖 **Intelligent auto-detect** - automatically determines translation direction
-- 🌍 Multiple secondary languages (Spanish, Italian, French, German, Portuguese)
-- 📋 One-click translate from clipboard
-- 📤 **Auto-copy to clipboard** - translations automatically copied after completion
-- 🔄 Smart logic: foreign language → English, English → selected secondary language
-- 🔑 Secure API key storage via GSettings
-- ⚙️ Configurable main and secondary languages
+- Panel indicator for instant access
+- Clipboard-based translation workflow (no typing needed)
+- **Intelligent auto-detect** - automatically determines translation direction
+- Multiple secondary languages (Spanish, Italian, French, German, Portuguese)
+- One-click translate from clipboard
+- **Auto-copy to clipboard** - translations automatically copied after completion
+- Smart logic: foreign language → English, English → selected secondary language
+- Secure API key storage via GSettings
+- Configurable main and secondary languages
 
 ## Requirements
 - GNOME Shell 48+
@@ -112,10 +112,10 @@ Built with:
 - GSettings for configuration
 
 ## Future Enhancements
-- [x] Translate from clipboard (✅ Implemented!)
-- [x] Auto-detect source language (✅ Implemented!)
-- [x] Auto-copy to clipboard (✅ Implemented!)
-- [x] Multiple language pairs (✅ Implemented!)
+- [x] Translate from clipboard (Implemented)
+- [x] Auto-detect source language (Implemented)
+- [x] Auto-copy to clipboard (Implemented)
+- [x] Multiple language pairs (Implemented)
 - [ ] Keyboard shortcut support
 - [ ] Translation history
 - [ ] Character count display
