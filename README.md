@@ -58,9 +58,9 @@ Then **log out and log back in** to load the extension.
 2. **Copy text** from any application (Ctrl+C) - any language!
 3. **Click the translation icon** in the top panel
 4. **Click "Translate from Clipboard"**
-5. **Translation auto-copies to clipboard** - Button shows "✓ Copied!" automatically
-6. **Paste anywhere** (Ctrl+V) - ready immediately!
-7. Result field auto-clears after 1.5 seconds, ready for next translation
+5. **Translation appears with "✓ Copied!" indicator** - automatically copied to clipboard!
+6. **Paste anywhere** (Ctrl+V) - translation is ready immediately!
+7. Translation stays visible until you close the menu
 
 ### Smart Translation Logic
 - **Foreign language detected** → Translates to English (main language)
