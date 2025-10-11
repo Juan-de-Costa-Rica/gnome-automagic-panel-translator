@@ -49,7 +49,6 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
         // Main language row
         const mainLangRow = new Adw.EntryRow({
             title: 'Main Language',
-            subtitle: 'Your primary language (text in other languages will translate to this)',
         });
         langGroup.add(mainLangRow);
 
@@ -64,7 +63,6 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
         // Secondary language row
         const secondaryLangRow = new Adw.EntryRow({
             title: 'Secondary Language',
-            subtitle: 'Text in your main language will translate to this',
         });
         langGroup.add(secondaryLangRow);
 
