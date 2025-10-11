@@ -18,9 +18,9 @@
 
     <!-- Available languages for quick access buttons -->
     <key name="available-languages" type="s">
-      <default>'ES,IT,FR,DE,PT-BR'</default>
+      <default>'ES,FR,DE'</default>
       <summary>Available languages</summary>
-      <description>Comma-separated list of language codes for quick access buttons (e.g., 'ES,IT,FR,JA,ZH')</description>
+      <description>Comma-separated list of language codes for quick access buttons (up to 3 languages)</description>
     </key>
 
     <!-- Last used language (persisted selection) -->
