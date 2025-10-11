@@ -64,6 +64,35 @@ class TranslatorIndicator extends PanelMenu.Button {
             style: 'padding: 10px; min-width: 400px;',
         });
 
+        // Header with title and settings button
+        const headerBox = new St.BoxLayout({
+            vertical: false,
+            style: 'margin-bottom: 10px;',
+        });
+
+        const titleLabel = new St.Label({
+            text: 'DeepL Translator',
+            style: 'font-weight: bold; font-size: 1.1em;',
+            x_expand: true,
+        });
+        headerBox.add_child(titleLabel);
+
+        const settingsButton = new St.Button({
+            style_class: 'button',
+            can_focus: true,
+            child: new St.Icon({
+                icon_name: 'emblem-system-symbolic',
+                style_class: 'popup-menu-icon',
+            }),
+        });
+        settingsButton.connect('clicked', () => {
+            this._extension.openPreferences();
+            this.menu.close();
+        });
+        headerBox.add_child(settingsButton);
+
+        box.add_child(headerBox);
+
         // Secondary language selector label
         const secondaryLangLabel = new St.Label({
             text: 'Secondary Language:',
