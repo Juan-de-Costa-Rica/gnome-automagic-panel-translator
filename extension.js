@@ -55,36 +55,42 @@ class TranslatorIndicator extends PanelMenu.Button {
             style: 'padding: 10px; min-width: 400px;',
         });
 
-        // Removed source text label and entry - now using clipboard instead
+        // Secondary language selector label
+        const secondaryLangLabel = new St.Label({
+            text: 'Secondary Language:',
+            style: 'font-weight: bold; margin-bottom: 5px;',
+        });
+        box.add_child(secondaryLangLabel);
 
-        // Language buttons row
+        // Secondary language buttons row
         const langButtonsBox = new St.BoxLayout({
             style: 'margin-bottom: 10px; spacing: 5px;',
         });
 
-        // EN → ES button
-        this._enToEsButton = new St.Button({
-            label: 'EN → ES',
-            style_class: 'deepl-lang-button',
-        });
-        this._enToEsButton.connect('clicked', () => {
-            this._currentSourceLang = 'EN';
-            this._currentTargetLang = 'ES';
-            this._updateButtonStates();
-        });
-        langButtonsBox.add_child(this._enToEsButton);
+        // Common languages - can be expanded
+        const languages = [
+            { code: 'ES', label: 'Spanish' },
+            { code: 'IT', label: 'Italian' },
+            { code: 'FR', label: 'French' },
+            { code: 'DE', label: 'German' },
+            { code: 'PT-BR', label: 'Portuguese' },
+        ];
 
-        // ES → EN button
-        this._esToEnButton = new St.Button({
-            label: 'ES → EN',
-            style_class: 'deepl-lang-button',
+        this._langButtons = {};
+
+        languages.forEach(lang => {
+            const button = new St.Button({
+                label: lang.label,
+                style_class: 'deepl-lang-button',
+            });
+            button.connect('clicked', () => {
+                this._currentSecondaryLang = lang.code;
+                this._settings.set_string('secondary-language', lang.code);
+                this._updateButtonStates();
+            });
+            this._langButtons[lang.code] = button;
+            langButtonsBox.add_child(button);
         });
-        this._esToEnButton.connect('clicked', () => {
-            this._currentSourceLang = 'ES';
-            this._currentTargetLang = 'EN';
-            this._updateButtonStates();
-        });
-        langButtonsBox.add_child(this._esToEnButton);
 
         box.add_child(langButtonsBox);
 
@@ -128,20 +134,20 @@ class TranslatorIndicator extends PanelMenu.Button {
         menuItem.add_child(box);
         this.menu.addMenuItem(menuItem);
 
-        // Initialize language direction from settings
-        this._currentSourceLang = this._settings.get_string('default-source-lang');
-        this._currentTargetLang = this._settings.get_string('default-target-lang');
+        // Initialize languages from settings
+        this._mainLanguage = this._settings.get_string('main-language');
+        this._currentSecondaryLang = this._settings.get_string('secondary-language');
         this._updateButtonStates();
     }
 
     _updateButtonStates() {
-        // Update button styling to show which is active
-        if (this._currentSourceLang === 'EN' && this._currentTargetLang === 'ES') {
-            this._enToEsButton.add_style_class_name('deepl-lang-button-active');
-            this._esToEnButton.remove_style_class_name('deepl-lang-button-active');
-        } else if (this._currentSourceLang === 'ES' && this._currentTargetLang === 'EN') {
-            this._esToEnButton.add_style_class_name('deepl-lang-button-active');
-            this._enToEsButton.remove_style_class_name('deepl-lang-button-active');
+        // Update button styling to show which secondary language is selected
+        for (const [code, button] of Object.entries(this._langButtons)) {
+            if (code === this._currentSecondaryLang) {
+                button.add_style_class_name('deepl-lang-button-active');
+            } else {
+                button.remove_style_class_name('deepl-lang-button-active');
+            }
         }
     }
 
@@ -167,17 +173,43 @@ class TranslatorIndicator extends PanelMenu.Button {
                 this._resultLabel.set_text('Translating...');
                 this._translateButton.set_label('...');
 
-                // Perform translation
+                // Use auto-detect (null source language) and let API detect
+                // Then decide target language based on detected source
                 this._translator.translate(
                     sourceText,
-                    this._currentSourceLang,
-                    this._currentTargetLang,
-                    (translatedText, error) => {
+                    null, // Auto-detect source language
+                    this._currentSecondaryLang, // Use secondary lang as initial target
+                    (translatedText, detectedSourceLang, error) => {
                         this._translateButton.set_label('Translate from Clipboard');
 
                         if (error) {
                             this._resultLabel.set_text(`Error: ${error}`);
+                            return;
+                        }
+
+                        // Smart logic: if detected language is our main language,
+                        // we got it backwards - translate to secondary language (which we did)
+                        // If detected language is NOT our main language, we need to translate to main language
+
+                        if (detectedSourceLang && detectedSourceLang !== this._mainLanguage) {
+                            // Detected language is NOT our main language
+                            // So translate to our main language
+                            this._translator.translate(
+                                sourceText,
+                                null, // Keep auto-detect
+                                this._mainLanguage,
+                                (finalText, detectedLang, err) => {
+                                    if (err) {
+                                        this._resultLabel.set_text(`Error: ${err}`);
+                                    } else {
+                                        this._resultLabel.set_text(finalText);
+                                        this._lastTranslation = finalText;
+                                    }
+                                }
+                            );
                         } else {
+                            // Detected language IS our main language (or couldn't detect)
+                            // Use the translation to secondary language we already got
                             this._resultLabel.set_text(translatedText);
                             this._lastTranslation = translatedText;
                         }

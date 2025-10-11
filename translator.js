@@ -12,18 +12,18 @@ export class DeepLTranslator {
     /**
      * Translate text using DeepL API
      * @param {string} text - Text to translate
-     * @param {string} sourceLang - Source language code (e.g., 'EN', 'ES')
+     * @param {string|null} sourceLang - Source language code (e.g., 'EN', 'ES') or null for auto-detect
      * @param {string} targetLang - Target language code (e.g., 'EN', 'ES')
-     * @param {Function} callback - Callback function(translatedText, error)
+     * @param {Function} callback - Callback function(translatedText, detectedSourceLang, error)
      */
     translate(text, sourceLang, targetLang, callback) {
         if (!this.apiKey || this.apiKey === '') {
-            callback(null, 'API key not configured. Please set it in preferences.');
+            callback(null, null, 'API key not configured. Please set it in preferences.');
             return;
         }
 
         if (!text || text.trim() === '') {
-            callback(null, 'No text to translate.');
+            callback(null, null, 'No text to translate.');
             return;
         }
 
@@ -31,8 +31,12 @@ export class DeepLTranslator {
             // Create the message
             const message = Soup.Message.new('POST', DEEPL_API_URL);
 
-            // Build form data
-            const formData = `auth_key=${encodeURIComponent(this.apiKey)}&text=${encodeURIComponent(text)}&source_lang=${encodeURIComponent(sourceLang)}&target_lang=${encodeURIComponent(targetLang)}`;
+            // Build form data (omit source_lang if null for auto-detect)
+            let formData = `auth_key=${encodeURIComponent(this.apiKey)}&text=${encodeURIComponent(text)}`;
+            if (sourceLang !== null) {
+                formData += `&source_lang=${encodeURIComponent(sourceLang)}`;
+            }
+            formData += `&target_lang=${encodeURIComponent(targetLang)}`;
 
             // Set request body
             message.set_request_body_from_bytes(
@@ -64,19 +68,20 @@ export class DeepLTranslator {
 
                         if (response.translations && response.translations.length > 0) {
                             const translatedText = response.translations[0].text;
-                            callback(translatedText, null);
+                            const detectedSourceLang = response.translations[0].detected_source_language || null;
+                            callback(translatedText, detectedSourceLang, null);
                         } else {
-                            callback(null, 'No translation received from DeepL.');
+                            callback(null, null, 'No translation received from DeepL.');
                         }
 
                     } catch (error) {
-                        callback(null, `Error parsing response: ${error.message}`);
+                        callback(null, null, `Error parsing response: ${error.message}`);
                     }
                 }
             );
 
         } catch (error) {
-            callback(null, `Request error: ${error.message}`);
+            callback(null, null, `Request error: ${error.message}`);
         }
     }
 

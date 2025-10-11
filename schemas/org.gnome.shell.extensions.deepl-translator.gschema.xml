@@ -9,18 +9,18 @@
       <description>Your DeepL API authentication key (free or pro tier)</description>
     </key>
 
-    <!-- Default source language -->
-    <key name="default-source-lang" type="s">
+    <!-- Main/default language (user's primary language) -->
+    <key name="main-language" type="s">
       <default>'EN'</default>
-      <summary>Default source language</summary>
-      <description>Default language to translate from (e.g., 'EN', 'ES', 'FR')</description>
+      <summary>Main language</summary>
+      <description>Your primary language (e.g., 'EN', 'ES', 'FR'). Text detected in other languages will be translated to this.</description>
     </key>
 
-    <!-- Default target language -->
-    <key name="default-target-lang" type="s">
+    <!-- Secondary language (for translating from main language) -->
+    <key name="secondary-language" type="s">
       <default>'ES'</default>
-      <summary>Default target language</summary>
-      <description>Default language to translate to (e.g., 'EN', 'ES', 'FR')</description>
+      <summary>Secondary language</summary>
+      <description>Secondary language (e.g., 'ES', 'IT', 'FR'). Text detected in your main language will be translated to this.</description>
     </key>
 
   </schema>

@@ -41,44 +41,53 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
 
         // Language Preferences group
         const langGroup = new Adw.PreferencesGroup({
-            title: 'Default Languages',
-            description: 'Set your preferred translation languages',
+            title: 'Language Settings',
+            description: 'Configure your main and secondary languages',
         });
         page.add(langGroup);
 
-        // Source language row
-        const sourceLangRow = new Adw.EntryRow({
-            title: 'Default Source Language',
+        // Main language row
+        const mainLangRow = new Adw.EntryRow({
+            title: 'Main Language',
+            subtitle: 'Your primary language (text in other languages will translate to this)',
         });
-        langGroup.add(sourceLangRow);
+        langGroup.add(mainLangRow);
 
-        // Bind source language to settings
+        // Bind main language to settings
         settings.bind(
-            'default-source-lang',
-            sourceLangRow,
+            'main-language',
+            mainLangRow,
             'text',
             Gio.SettingsBindFlags.DEFAULT
         );
 
-        // Target language row
-        const targetLangRow = new Adw.EntryRow({
-            title: 'Default Target Language',
+        // Secondary language row
+        const secondaryLangRow = new Adw.EntryRow({
+            title: 'Secondary Language',
+            subtitle: 'Text in your main language will translate to this',
         });
-        langGroup.add(targetLangRow);
+        langGroup.add(secondaryLangRow);
 
-        // Bind target language to settings
+        // Bind secondary language to settings
         settings.bind(
-            'default-target-lang',
-            targetLangRow,
+            'secondary-language',
+            secondaryLangRow,
             'text',
             Gio.SettingsBindFlags.DEFAULT
         );
 
         // Language codes help
         const langHelpRow = new Adw.ActionRow({
-            title: 'Supported language codes:',
-            subtitle: 'EN (English), ES (Spanish), FR (French), DE (German), IT (Italian), PT (Portuguese), etc.',
+            title: 'Common language codes:',
+            subtitle: 'EN, ES, IT, FR, DE, PT-BR, PT-PT, JA, ZH, RU, etc.',
         });
         langGroup.add(langHelpRow);
+
+        // How it works explanation
+        const explanationRow = new Adw.ActionRow({
+            title: 'How auto-detection works:',
+            subtitle: 'Extension auto-detects clipboard language. If not your main language → translates to main. If it is your main language → translates to secondary.',
+        });
+        langGroup.add(explanationRow);
     }
 }
