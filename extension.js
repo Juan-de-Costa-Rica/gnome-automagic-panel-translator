@@ -244,18 +244,8 @@ class TranslatorIndicator extends PanelMenu.Button {
         );
 
         // Visual feedback - show "✓ Copied!" indicator
+        // Will stay visible until menu closes (handled by open-state-changed signal)
         this._copiedIndicator.visible = true;
-
-        // Hide indicator after 2 seconds
-        if (this._copyTimeoutId) {
-            GLib.Source.remove(this._copyTimeoutId);
-        }
-
-        this._copyTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
-            this._copiedIndicator.visible = false;
-            this._copyTimeoutId = null;
-            return GLib.SOURCE_REMOVE;
-        });
     }
 
     destroy() {
@@ -267,11 +257,6 @@ class TranslatorIndicator extends PanelMenu.Button {
         if (this._menuOpenStateChangedId) {
             this.menu.disconnect(this._menuOpenStateChangedId);
             this._menuOpenStateChangedId = null;
-        }
-
-        if (this._copyTimeoutId) {
-            GLib.Source.remove(this._copyTimeoutId);
-            this._copyTimeoutId = null;
         }
 
         if (this._translator) {
