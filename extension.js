@@ -92,8 +92,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         // EN → ES button
         this._enToEsButton = new St.Button({
             label: 'EN → ES',
-            style_class: 'button',
-            style: 'padding: 5px 10px;',
+            style_class: 'deepl-lang-button',
         });
         this._enToEsButton.connect('clicked', () => {
             this._currentSourceLang = 'EN';
@@ -105,8 +104,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         // ES → EN button
         this._esToEnButton = new St.Button({
             label: 'ES → EN',
-            style_class: 'button',
-            style: 'padding: 5px 10px;',
+            style_class: 'deepl-lang-button',
         });
         this._esToEnButton.connect('clicked', () => {
             this._currentSourceLang = 'ES';
@@ -118,8 +116,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Translate button
         this._translateButton = new St.Button({
             label: 'Translate',
-            style_class: 'button',
-            style: 'padding: 5px 15px; margin-left: auto;',
+            style_class: 'deepl-translate-button',
         });
         this._translateButton.connect('clicked', () => {
             this._doTranslation();
@@ -147,8 +144,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Copy button
         this._copyButton = new St.Button({
             label: 'Copy to Clipboard',
-            style_class: 'button',
-            style: 'padding: 5px 10px;',
+            style_class: 'deepl-copy-button',
         });
         this._copyButton.connect('clicked', () => {
             this._copyToClipboard();
@@ -167,11 +163,11 @@ class TranslatorIndicator extends PanelMenu.Button {
     _updateButtonStates() {
         // Update button styling to show which is active
         if (this._currentSourceLang === 'EN' && this._currentTargetLang === 'ES') {
-            this._enToEsButton.style = 'padding: 5px 10px; background-color: rgba(255, 255, 255, 0.1);';
-            this._esToEnButton.style = 'padding: 5px 10px;';
+            this._enToEsButton.add_style_class_name('deepl-lang-button-active');
+            this._esToEnButton.remove_style_class_name('deepl-lang-button-active');
         } else if (this._currentSourceLang === 'ES' && this._currentTargetLang === 'EN') {
-            this._esToEnButton.style = 'padding: 5px 10px; background-color: rgba(255, 255, 255, 0.1);';
-            this._enToEsButton.style = 'padding: 5px 10px;';
+            this._esToEnButton.add_style_class_name('deepl-lang-button-active');
+            this._enToEsButton.remove_style_class_name('deepl-lang-button-active');
         }
     }
 
@@ -237,6 +233,11 @@ class TranslatorIndicator extends PanelMenu.Button {
         this._copyTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
             this._copyButton.set_label(originalLabel);
             this._copyTimeoutId = null;
+
+            // Clear both text fields after copy confirmation
+            this._sourceEntry.set_text('');
+            this._resultLabel.set_text('');
+
             return GLib.SOURCE_REMOVE;
         });
     }
