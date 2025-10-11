@@ -204,6 +204,8 @@ class TranslatorIndicator extends PanelMenu.Button {
                                     } else {
                                         this._resultLabel.set_text(finalText);
                                         this._lastTranslation = finalText;
+                                        // Auto-copy to clipboard after successful translation
+                                        this._autoCopyToClipboard(finalText);
                                     }
                                 }
                             );
@@ -212,6 +214,8 @@ class TranslatorIndicator extends PanelMenu.Button {
                             // Use the translation to secondary language we already got
                             this._resultLabel.set_text(translatedText);
                             this._lastTranslation = translatedText;
+                            // Auto-copy to clipboard after successful translation
+                            this._autoCopyToClipboard(translatedText);
                         }
                     }
                 );
@@ -219,7 +223,34 @@ class TranslatorIndicator extends PanelMenu.Button {
         );
     }
 
+    _autoCopyToClipboard(text) {
+        // Automatically copy translation to clipboard
+        St.Clipboard.get_default().set_text(
+            St.ClipboardType.CLIPBOARD,
+            text
+        );
+
+        // Visual feedback - show "Copied!" status
+        this._copyButton.set_label('✓ Copied!');
+
+        // Reset after 1.5 seconds
+        if (this._copyTimeoutId) {
+            GLib.Source.remove(this._copyTimeoutId);
+        }
+
+        this._copyTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
+            this._copyButton.set_label('Copy to Clipboard');
+            this._copyTimeoutId = null;
+
+            // Clear result field after copy confirmation
+            this._resultLabel.set_text('');
+
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
     _copyToClipboard() {
+        // Manual copy (if user clicks the button again)
         const text = this._resultLabel.get_text();
 
         if (!text || text === '') {
@@ -232,8 +263,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         );
 
         // Visual feedback
-        const originalLabel = this._copyButton.get_label();
-        this._copyButton.set_label('Copied!');
+        this._copyButton.set_label('✓ Copied!');
 
         // Reset after 1.5 seconds
         if (this._copyTimeoutId) {
@@ -241,7 +271,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         }
 
         this._copyTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
-            this._copyButton.set_label(originalLabel);
+            this._copyButton.set_label('Copy to Clipboard');
             this._copyTimeoutId = null;
 
             // Clear result field after copy confirmation
