@@ -38,8 +38,9 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Clear result field when menu closes
         this._menuOpenStateChangedId = this.menu.connect('open-state-changed', (menu, isOpen) => {
             if (!isOpen) {
-                // Menu is closing - clear the result
+                // Menu is closing - clear the result and hide copied indicator
                 this._resultLabel.set_text('');
+                this._copiedIndicator.visible = false;
             }
         });
 
@@ -113,31 +114,35 @@ class TranslatorIndicator extends PanelMenu.Button {
         });
         box.add_child(this._translateButton);
 
-        // Translation result label
+        // Translation result label with copied indicator
+        const resultHeaderBox = new St.BoxLayout({
+            style: 'margin-bottom: 5px;',
+        });
+
         const resultLabel = new St.Label({
             text: 'Translation:',
-            style: 'font-weight: bold; margin-bottom: 5px;',
+            style: 'font-weight: bold;',
         });
-        box.add_child(resultLabel);
+        resultHeaderBox.add_child(resultLabel);
+
+        // Copied indicator (initially hidden)
+        this._copiedIndicator = new St.Label({
+            text: '  ✓ Copied!',
+            style: 'color: #4CAF50; font-weight: bold; margin-left: 10px;',
+            visible: false,
+        });
+        resultHeaderBox.add_child(this._copiedIndicator);
+
+        box.add_child(resultHeaderBox);
 
         // Translation result display
         this._resultLabel = new St.Label({
             text: '',
-            style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; margin-bottom: 10px; min-height: 60px;',
+            style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; min-height: 60px;',
         });
         this._resultLabel.clutter_text.set_line_wrap(true);
         this._resultLabel.clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
         box.add_child(this._resultLabel);
-
-        // Copy button
-        this._copyButton = new St.Button({
-            label: 'Copy to Clipboard',
-            style_class: 'deepl-copy-button',
-        });
-        this._copyButton.connect('clicked', () => {
-            this._copyToClipboard();
-        });
-        box.add_child(this._copyButton);
 
         menuItem.add_child(box);
         this.menu.addMenuItem(menuItem);
@@ -238,51 +243,17 @@ class TranslatorIndicator extends PanelMenu.Button {
             text
         );
 
-        // Visual feedback - show "Copied!" status
-        this._copyButton.set_label('✓ Copied!');
+        // Visual feedback - show "✓ Copied!" indicator
+        this._copiedIndicator.visible = true;
 
-        // Reset after 1.5 seconds
+        // Hide indicator after 2 seconds
         if (this._copyTimeoutId) {
             GLib.Source.remove(this._copyTimeoutId);
         }
 
-        this._copyTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
-            this._copyButton.set_label('Copy to Clipboard');
+        this._copyTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
+            this._copiedIndicator.visible = false;
             this._copyTimeoutId = null;
-
-            // Don't clear result field here - let it persist until menu closes
-
-            return GLib.SOURCE_REMOVE;
-        });
-    }
-
-    _copyToClipboard() {
-        // Manual copy (if user clicks the button again)
-        const text = this._resultLabel.get_text();
-
-        if (!text || text === '') {
-            return;
-        }
-
-        St.Clipboard.get_default().set_text(
-            St.ClipboardType.CLIPBOARD,
-            text
-        );
-
-        // Visual feedback
-        this._copyButton.set_label('✓ Copied!');
-
-        // Reset after 1.5 seconds
-        if (this._copyTimeoutId) {
-            GLib.Source.remove(this._copyTimeoutId);
-        }
-
-        this._copyTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
-            this._copyButton.set_label('Copy to Clipboard');
-            this._copyTimeoutId = null;
-
-            // Don't clear result field here - let it persist until menu closes
-
             return GLib.SOURCE_REMOVE;
         });
     }
