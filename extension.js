@@ -22,7 +22,7 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         // Create panel icon
         this._icon = new St.Icon({
-            icon_name: 'preferences-desktop-locale-symbolic',
+            icon_name: 'accessories-character-map-symbolic',
             style_class: 'system-status-icon',
         });
         this.add_child(this._icon);
