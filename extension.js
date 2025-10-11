@@ -1,5 +1,6 @@
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
+import Pango from 'gi://Pango';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -130,7 +131,7 @@ class TranslatorIndicator extends PanelMenu.Button {
             style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; margin-bottom: 10px; min-height: 60px;',
         });
         this._resultLabel.clutter_text.set_line_wrap(true);
-        this._resultLabel.clutter_text.set_line_wrap_mode(Clutter.WrapMode.WORD_CHAR);
+        this._resultLabel.clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
         box.add_child(this._resultLabel);
 
         // Copy button
