@@ -2,8 +2,9 @@
 
 **Date:** October 11, 2025
 **Agent:** Claude (Sonnet 4.5)
-**Status:** ✅ Production Ready - Dropdown Selectors & Settings Gear Implemented
-**Next Step:** Test after logout/login, then ready for extensions.gnome.org resubmission
+**Status:** ✅ Version 2.0 - PRIMARY Selection Support Implemented
+**Version:** 2.0 (31 commits)
+**Next Step:** Test PRIMARY selection after logout/login, then submit v2.0 to extensions.gnome.org
 
 ---
 
@@ -21,8 +22,11 @@ Built a GNOME Shell extension that provides quick translations using the DeepL A
 7. ✅ **Preferences window with dropdown selectors** - validated language selection
 8. ✅ **Settings gear icon in popup** - easy access to preferences
 9. ✅ Smart logic: foreign language → main language, main language → secondary language
+10. ✅ **PRIMARY selection support (v2.0)** - translate selected text without copying
 
 ### Current Implementation:
+- **PRIMARY Selection Support (v2.0):** Translate selected text without copying (saves one click!)
+- **Smart Clipboard Reading:** Tries PRIMARY selection first, falls back to CLIPBOARD if empty
 - **Auto-Detect Logic:** Extension detects clipboard language automatically
 - **Smart Direction:** If detected ≠ main language → translate to main, if = main → translate to selected button language
 - **Dropdown Language Selectors:** Professional GTK4 ComboRow widgets in preferences with automatic validation
@@ -82,10 +86,12 @@ Built a GNOME Shell extension that provides quick translations using the DeepL A
 ### File Overview:
 ```
 gnome-deepl-translator/
-├── extension.js          # Main extension (~312 lines)
+├── extension.js          # Main extension (~340 lines)
 │   ├── TranslatorIndicator class (panel button + UI)
 │   ├── Header with "DeepL Translator" title + settings gear icon
-│   ├── Popup menu with clipboard-based translation
+│   ├── Popup menu with PRIMARY/CLIPBOARD translation (v2.0)
+│   ├── Smart clipboard reading: PRIMARY first, CLIPBOARD fallback
+│   ├── _performTranslation() helper method for cleaner code
 │   ├── Dynamic secondary language selector buttons (1-3 languages)
 │   ├── Intelligent auto-detect translation logic
 │   ├── Smart direction: detected language → correct target
@@ -116,6 +122,7 @@ gnome-deepl-translator/
 │
 ├── metadata.json        # Extension metadata
 │   ├── UUID: deepl-translator@juan-de-costa-rica
+│   ├── Version: 2 (version-name: "2.0")
 │   └── Stylesheet reference
 │
 ├── schemas/
@@ -214,7 +221,7 @@ this._sourceEntry.clutter_text.connect('button-press-event', () => {
 ### GitHub Repository:
 **URL:** https://github.com/Juan-de-Costa-Rica/gnome-deepl-translator
 
-### Commit History (27 commits):
+### Commit History (31 commits):
 1. `78a5709` - Initial commit: Project setup
 2. `848dfa5` - Add metadata.json with extension configuration
 3. `c8291c5` - Add GSettings schema for API key and language preferences
@@ -242,6 +249,10 @@ this._sourceEntry.clutter_text.connect('button-press-event', () => {
 25. `3341523` - Feature: Make language buttons configurable via preferences
 26. `ab8ac8e` - UX: Replace language text entry with dropdown selectors for validation
 27. `7cd7031` - UX: Add settings gear icon to popup menu for easy preferences access
+28. `0824889` - Docs: Update documentation for dropdown selectors and settings gear icon
+29. `167bf4b` - Fix: Reduce default available languages from 5 to 3 to match preferences UI
+30. `087a0fb` - UX: Change panel icon from locale flag to character map
+31. `b4b8c34` - Feature: Add PRIMARY selection support (v2.0)
 
 ### Remote Configuration:
 - **Origin:** git@github.com:Juan-de-Costa-Rica/gnome-deepl-translator.git
@@ -255,17 +266,21 @@ this._sourceEntry.clutter_text.connect('button-press-event', () => {
 ### What's Complete:
 - ✅ All code written and tested
 - ✅ Extension installed and ACTIVE
-- ✅ GSettings schema compiled with new keys (main-language, secondary-language)
-- ✅ Git repository: 24 commits pushed to GitHub
-- ✅ **Production ready:** Professional documentation, all bugs fixed
-- ✅ **Submitted to extensions.gnome.org** (October 11, 2025)
+- ✅ GSettings schema compiled with new keys (main-language, available-languages, last-used-language)
+- ✅ Git repository: 31 commits pushed to GitHub
+- ✅ **Version 2.0 ready:** PRIMARY selection support implemented
 - ✅ **MAJOR FEATURE:** Intelligent auto-detect translation workflow implemented
-- ✅ **UI Redesign:** Secondary language selector (ES, IT, FR, DE, PT-BR)
+- ✅ **NEW in v2.0:** PRIMARY selection support - translate selected text without copying
+- ✅ **Smart Clipboard Reading:** Tries PRIMARY first, falls back to CLIPBOARD
+- ✅ **UI Redesign:** Secondary language selector (3 configurable languages: ES, FR, DE)
 - ✅ **Smart Logic:** Detected language determines translation direction automatically
 - ✅ **API Integration:** Auto-detect via omitted source_lang parameter
 - ✅ **Streamlined UI:** Inline copied indicator, no redundant button
 - ✅ **UX Polish:** Copied indicator persists until menu closes (matches translated text behavior)
-- ✅ **Settings Updated:** dconf configured with main-language='EN', secondary-language='ES'
+- ✅ **Settings Updated:** dconf configured with main-language='EN', available-languages='ES,FR,DE'
+- ✅ **Dropdown Selectors:** Professional GTK4 ComboRow widgets in preferences
+- ✅ **Settings Gear Icon:** Quick access to preferences from popup menu
+- ✅ **Character Map Icon:** More intuitive panel icon for translation functionality
 - ✅ Documentation complete (README, SETUP_NOTES, Project-Handoff)
 
 ### Previous Features Working:
@@ -891,10 +906,41 @@ The user should NEVER have to ask you to update this document. It should happen 
 - **Commit:** 7cd7031
 - **Status:** ✅ Code complete, needs logout/login to test on Wayland
 
+### October 11, 2025 - Enhancement #8: PRIMARY Selection Support (v2.0)
+**User Request:** "Translate selected text without copying - save one click in the workflow"
+- **Problem:** User had to select text AND copy it (Ctrl+C) before translating
+- **Solution:** Smart clipboard reading with PRIMARY selection fallback
+- **Changes Made:**
+  - **extension.js Updates:**
+    - Modified `_doTranslation()` to try `St.ClipboardType.PRIMARY` first
+    - Falls back to `St.ClipboardType.CLIPBOARD` if PRIMARY is empty
+    - Extracted translation logic into new `_performTranslation()` helper method
+    - Updated button label: "Translate from Clipboard" → "Translate"
+    - Cleaner code organization with nested async callbacks
+  - **metadata.json Updates:**
+    - Version bump: 1 → 2
+    - Added `version-name: "2.0"` for user-facing version display
+- **New Workflow Options:**
+  - Option 1 (NEW): Select text → Click icon → Translate (saves one click!)
+  - Option 2 (Still works): Copy text → Click icon → Translate
+- **Technical Details:**
+  - Uses Linux PRIMARY selection buffer (auto-populated on text selection)
+  - Wayland supports PRIMARY selection via protocol extension
+  - Seamless fallback ensures backward compatibility
+- **Benefits:**
+  - Faster workflow - one less click per translation
+  - More intuitive - just select and translate
+  - Still supports traditional copy workflow
+  - Professional versioning with semantic version number
+- **Files Modified:** 2 files (extension.js, metadata.json)
+- **Lines Changed:** +41/-20
+- **Commit:** b4b8c34
+- **Status:** ✅ Version 2.0 code complete, needs logout/login to test
+
 ---
 
-**Status: 🟢 Production Ready - Awaiting Testing**
-**Next Agent: User needs to logout/login to load new code on Wayland, then test dropdown selectors and gear icon. After successful testing, ready for extensions.gnome.org resubmission.**
+**Status: 🟢 Version 2.0 Ready - Awaiting Testing**
+**Next Agent: User needs to logout/login to load v2.0 code on Wayland, then test PRIMARY selection support. After successful testing, create v2.0 submission zip for extensions.gnome.org.**
 
 **⚠️ IMPORTANT FOR NEXT AGENT:**
 After any meaningful work (features, bug fixes, enhancements), you MUST update this Project-Handoff.md document. Add entries to the Bug Fix Log, update commit history, update "What's Complete", and update timestamps. The user should never have to manually request handoff document updates.
@@ -902,5 +948,5 @@ After any meaningful work (features, bug fixes, enhancements), you MUST update t
 ---
 
 *Document created: October 10, 2025*
-*Last updated: October 11, 2025 (after adding dropdown selectors and settings gear icon - commits ab8ac8e, 7cd7031)*
+*Last updated: October 11, 2025 (after implementing PRIMARY selection support v2.0 - commit b4b8c34)*
 *Agent: Claude (Sonnet 4.5)*
