@@ -5,11 +5,13 @@ A GNOME Shell extension for quick translations using the DeepL API. No separate 
 ## Features
 - 🌐 Panel indicator for instant access
 - ⚡ Clipboard-based translation workflow (no typing needed!)
-- 🔄 Easy language switching (EN ↔ ES buttons with visual feedback)
+- 🤖 **Intelligent auto-detect** - automatically determines translation direction
+- 🌍 Multiple secondary languages (Spanish, Italian, French, German, Portuguese)
 - 📋 One-click translate from clipboard
-- 📤 Copy translations to clipboard with auto-clear
+- 📤 **Auto-copy to clipboard** - translations automatically copied after completion
+- 🔄 Smart logic: foreign language → English, English → selected secondary language
 - 🔑 Secure API key storage via GSettings
-- ⚙️ Configurable default languages
+- ⚙️ Configurable main and secondary languages
 
 ## Requirements
 - GNOME Shell 48+
@@ -52,12 +54,18 @@ Then **log out and log back in** to load the extension.
 
 ## Usage
 
-1. **Copy text** from any application (Ctrl+C)
-2. **Click the translation icon** in the top panel
-3. **Click "EN → ES" or "ES → EN"** to set direction
+1. **Select your secondary language** - Click the language button (Spanish, Italian, French, German, or Portuguese)
+2. **Copy text** from any application (Ctrl+C) - any language!
+3. **Click the translation icon** in the top panel
 4. **Click "Translate from Clipboard"**
-5. **Click "Copy to Clipboard"** to copy the result
-6. Result field auto-clears after copying, ready for next translation!
+5. **Translation auto-copies to clipboard** - Button shows "✓ Copied!" automatically
+6. **Paste anywhere** (Ctrl+V) - ready immediately!
+7. Result field auto-clears after 1.5 seconds, ready for next translation
+
+### Smart Translation Logic
+- **Foreign language detected** → Translates to English (main language)
+- **English detected** → Translates to your selected secondary language
+- **No manual direction switching needed** - it just works!
 
 ## Supported Languages
 
@@ -75,9 +83,16 @@ See [DeepL's supported languages](https://www.deepl.com/docs-api/translate-text/
 ## Troubleshooting
 
 ### Extension doesn't appear after installation
-- Make sure you logged out and back in (required on Wayland)
+- **Make sure you logged out and back in** (required on Wayland)
 - Check if it's enabled: `gnome-extensions list`
 - Enable it: `gnome-extensions enable deepl-translator@juan-de-costa-rica`
+
+### Code changes not taking effect
+**Important:** On Wayland, GNOME Shell caches extension code in memory.
+- **After updating extension code, you MUST log out and log back in**
+- Disable/enable does NOT reload the code
+- `ReloadExtension` D-Bus method is deprecated and doesn't work
+- For development: Use nested GNOME Shell (`dbus-run-session -- gnome-shell --nested --wayland`)
 
 ### Translation errors
 - Verify your API key is correct in preferences
@@ -98,11 +113,13 @@ Built with:
 
 ## Future Enhancements
 - [x] Translate from clipboard (✅ Implemented!)
+- [x] Auto-detect source language (✅ Implemented!)
+- [x] Auto-copy to clipboard (✅ Implemented!)
+- [x] Multiple language pairs (✅ Implemented!)
 - [ ] Keyboard shortcut support
-- [ ] Auto-detect source language
 - [ ] Translation history
-- [ ] More language pairs
 - [ ] Character count display
+- [ ] Submit to extensions.gnome.org
 
 ## License
 MIT
