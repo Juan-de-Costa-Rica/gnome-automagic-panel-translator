@@ -274,43 +274,41 @@ class TranslatorIndicator extends PanelMenu.Button {
             (translatedText, detectedSourceLang, error) => {
                 this._translateButton.set_label('Translate');
 
-                        if (error) {
-                            this._resultLabel.set_text(`Error: ${error}`);
-                            return;
-                        }
+                if (error) {
+                    this._resultLabel.set_text(`Error: ${error}`);
+                    return;
+                }
 
-                        // Smart logic: if detected language is our main language,
-                        // we got it backwards - translate to secondary language (which we did)
-                        // If detected language is NOT our main language, we need to translate to main language
+                // Smart logic: if detected language is our main language,
+                // we got it backwards - translate to secondary language (which we did)
+                // If detected language is NOT our main language, we need to translate to main language
 
-                        if (detectedSourceLang && detectedSourceLang !== this._mainLanguage) {
-                            // Detected language is NOT our main language
-                            // So translate to our main language
-                            this._translator.translate(
-                                sourceText,
-                                null, // Keep auto-detect
-                                this._mainLanguage,
-                                (finalText, detectedLang, err) => {
-                                    if (err) {
-                                        this._resultLabel.set_text(`Error: ${err}`);
-                                    } else {
-                                        this._resultLabel.set_text(finalText);
-                                        this._lastTranslation = finalText;
-                                        // Auto-copy to clipboard after successful translation
-                                        this._autoCopyToClipboard(finalText);
-                                    }
-                                }
-                            );
-                        } else {
-                            // Detected language IS our main language (or couldn't detect)
-                            // Use the translation to secondary language we already got
-                            this._resultLabel.set_text(translatedText);
-                            this._lastTranslation = translatedText;
-                            // Auto-copy to clipboard after successful translation
-                            this._autoCopyToClipboard(translatedText);
+                if (detectedSourceLang && detectedSourceLang !== this._mainLanguage) {
+                    // Detected language is NOT our main language
+                    // So translate to our main language
+                    this._translator.translate(
+                        sourceText,
+                        null, // Keep auto-detect
+                        this._mainLanguage,
+                        (finalText, detectedLang, err) => {
+                            if (err) {
+                                this._resultLabel.set_text(`Error: ${err}`);
+                            } else {
+                                this._resultLabel.set_text(finalText);
+                                this._lastTranslation = finalText;
+                                // Auto-copy to clipboard after successful translation
+                                this._autoCopyToClipboard(finalText);
+                            }
                         }
-                    }
-                );
+                    );
+                } else {
+                    // Detected language IS our main language (or couldn't detect)
+                    // Use the translation to secondary language we already got
+                    this._resultLabel.set_text(translatedText);
+                    this._lastTranslation = translatedText;
+                    // Auto-copy to clipboard after successful translation
+                    this._autoCopyToClipboard(translatedText);
+                }
             }
         );
     }
