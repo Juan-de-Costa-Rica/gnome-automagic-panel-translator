@@ -4,9 +4,10 @@ A GNOME Shell extension for quick translations using the DeepL API. No separate 
 
 ## Features
 - 🌐 Panel indicator for instant access
-- ⚡ Quick translation popup interface (no separate window!)
-- 🔄 Easy language switching (EN ↔ ES buttons)
-- 📋 Copy translations to clipboard with one click
+- ⚡ Clipboard-based translation workflow (no typing needed!)
+- 🔄 Easy language switching (EN ↔ ES buttons with visual feedback)
+- 📋 One-click translate from clipboard
+- 📤 Copy translations to clipboard with auto-clear
 - 🔑 Secure API key storage via GSettings
 - ⚙️ Configurable default languages
 
@@ -51,11 +52,12 @@ Then **log out and log back in** to load the extension.
 
 ## Usage
 
-1. Click the translation icon in the top panel
-2. Enter text to translate
-3. Click "EN → ES" or "ES → EN" to set direction
-4. Click "Translate"
-5. Click "Copy to Clipboard" to copy the result
+1. **Copy text** from any application (Ctrl+C)
+2. **Click the translation icon** in the top panel
+3. **Click "EN → ES" or "ES → EN"** to set direction
+4. **Click "Translate from Clipboard"**
+5. **Click "Copy to Clipboard"** to copy the result
+6. Result field auto-clears after copying, ready for next translation!
 
 ## Supported Languages
 
@@ -95,10 +97,10 @@ Built with:
 - GSettings for configuration
 
 ## Future Enhancements
+- [x] Translate from clipboard (✅ Implemented!)
 - [ ] Keyboard shortcut support
 - [ ] Auto-detect source language
 - [ ] Translation history
-- [ ] Translate from clipboard
 - [ ] More language pairs
 - [ ] Character count display
 
