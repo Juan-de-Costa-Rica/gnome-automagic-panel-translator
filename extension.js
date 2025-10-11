@@ -4,6 +4,7 @@ import Pango from 'gi://Pango';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
@@ -31,6 +32,16 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         // Initialize translator with API key from settings
         this._updateTranslator();
+
+        // Set focus to text entry when menu opens
+        this.menu.connect('open-state-changed', (menu, open) => {
+            if (open) {
+                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 50, () => {
+                    global.stage.set_key_focus(this._sourceEntry.clutter_text);
+                    return GLib.SOURCE_REMOVE;
+                });
+            }
+        });
 
         // Watch for settings changes
         this._settingsChangedId = this._settings.connect('changed::api-key', () => {
@@ -67,10 +78,9 @@ class TranslatorIndicator extends PanelMenu.Button {
             style: 'margin-bottom: 10px; min-height: 60px;',
         });
 
-        // Prevent menu from closing when clicking entry
-        this._sourceEntry.clutter_text.connect('button-press-event', () => {
-            return Clutter.EVENT_STOP;
-        });
+        // Make the text entry editable
+        this._sourceEntry.clutter_text.set_editable(true);
+        this._sourceEntry.clutter_text.set_activatable(true);
 
         box.add_child(this._sourceEntry);
 
