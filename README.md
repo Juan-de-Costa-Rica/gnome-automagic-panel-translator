@@ -6,12 +6,12 @@ A GNOME Shell extension for quick translations using the DeepL API. No separate 
 - Panel indicator for instant access
 - Clipboard-based translation workflow (no typing needed)
 - **Intelligent auto-detect** - automatically determines translation direction
-- Multiple secondary languages (Spanish, Italian, French, German, Portuguese)
+- **Customizable language buttons** - configure which languages appear in the UI
 - One-click translate from clipboard
 - **Auto-copy to clipboard** - translations automatically copied after completion
-- Smart logic: foreign language → English, English → selected secondary language
+- Smart logic: foreign language → English, English → selected language
 - Secure API key storage via GSettings
-- Configurable main and secondary languages
+- Support for all 30 DeepL languages
 
 ## Requirements
 - GNOME Shell 48+
@@ -50,11 +50,12 @@ Then **log out and log back in** to load the extension.
 1. Get your free DeepL API key at: https://www.deepl.com/pro-api
 2. Open extension preferences: Right-click the panel icon → Preferences
 3. Enter your API key
-4. (Optional) Set your preferred default languages
+4. (Optional) Set your main language (default: EN)
+5. (Optional) Customize available languages: Enter comma-separated codes like `ES,IT,FR,JA,ZH`
 
 ## Usage
 
-1. **Select your secondary language** - Click the language button (Spanish, Italian, French, German, or Portuguese)
+1. **Select your target language** - Click one of the language buttons in the popup
 2. **Copy text** from any application (Ctrl+C) - any language!
 3. **Click the translation icon** in the top panel
 4. **Click "Translate from Clipboard"**
@@ -63,20 +64,23 @@ Then **log out and log back in** to load the extension.
 7. Translation stays visible until you close the menu
 
 ### Smart Translation Logic
-- **Foreign language detected** → Translates to English (main language)
-- **English detected** → Translates to your selected secondary language
+- **Foreign language detected** → Translates to your main language (default: English)
+- **Main language detected** → Translates to your selected button language
 - **No manual direction switching needed** - it just works!
+
+### Customizing Language Buttons
+The extension shows buttons for your configured languages (default: Spanish, Italian, French, German, Portuguese). To customize:
+1. Open Preferences
+2. Edit "Available Languages" field with comma-separated codes: `JA,ZH,KO,RU,AR`
+3. Buttons will update automatically
+4. Supports all 30 DeepL languages!
 
 ## Supported Languages
 
-Common language codes (use 2-letter codes in preferences):
-- EN (English)
-- ES (Spanish)
-- FR (French)
-- DE (German)
-- IT (Italian)
-- PT (Portuguese)
-- And many more!
+All DeepL-supported languages (use these codes in preferences):
+- **Western European:** EN, ES, FR, DE, IT, PT-BR, PT-PT, NL, DA, SV, NB, FI
+- **Eastern European:** PL, CS, SK, HU, RO, BG, SL, LT, LV, ET, UK, RU, TR, EL
+- **Asian:** JA, ZH, KO, ID
 
 See [DeepL's supported languages](https://www.deepl.com/docs-api/translate-text/) for the full list.
 
@@ -116,10 +120,11 @@ Built with:
 - [x] Auto-detect source language (Implemented)
 - [x] Auto-copy to clipboard (Implemented)
 - [x] Multiple language pairs (Implemented)
+- [x] Customizable language buttons (Implemented)
+- [ ] Dropdown language selector UI in preferences
 - [ ] Keyboard shortcut support
 - [ ] Translation history
 - [ ] Character count display
-- [ ] Submit to extensions.gnome.org
 
 ## License
 MIT
