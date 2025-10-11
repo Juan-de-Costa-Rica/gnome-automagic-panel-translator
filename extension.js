@@ -109,9 +109,9 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         box.add_child(this._langButtonsBox);
 
-        // Translate from Clipboard button (on its own line)
+        // Translate button (tries PRIMARY selection first, falls back to CLIPBOARD)
         this._translateButton = new St.Button({
-            label: 'Translate from Clipboard',
+            label: 'Translate',
             style_class: 'deepl-translate-button',
             style: 'margin-bottom: 10px;',
         });
@@ -232,27 +232,47 @@ class TranslatorIndicator extends PanelMenu.Button {
     }
 
     _doTranslation() {
-        // Read text from clipboard
+        // Try PRIMARY selection first (selected text), fall back to CLIPBOARD
         St.Clipboard.get_default().get_text(
-            St.ClipboardType.CLIPBOARD,
-            (clipboard, sourceText) => {
-                if (!sourceText || sourceText.trim() === '') {
-                    this._resultLabel.set_text('Clipboard is empty. Copy text first.');
+            St.ClipboardType.PRIMARY,
+            (clipboard, primaryText) => {
+                // If PRIMARY is empty, try CLIPBOARD
+                if (!primaryText || primaryText.trim() === '') {
+                    St.Clipboard.get_default().get_text(
+                        St.ClipboardType.CLIPBOARD,
+                        (clipboard, clipboardText) => {
+                            if (!clipboardText || clipboardText.trim() === '') {
+                                this._resultLabel.set_text('No text found. Select or copy text first.');
+                                return;
+                            }
+                            this._performTranslation(clipboardText);
+                        }
+                    );
                     return;
                 }
+                this._performTranslation(primaryText);
+            }
+        );
+    }
 
-                // Show loading state
-                this._resultLabel.set_text('Translating...');
-                this._translateButton.set_label('...');
+    _performTranslation(sourceText) {
+        if (!sourceText || sourceText.trim() === '') {
+            this._resultLabel.set_text('No text found. Select or copy text first.');
+            return;
+        }
 
-                // Use auto-detect (null source language) and let API detect
-                // Then decide target language based on detected source
-                this._translator.translate(
-                    sourceText,
-                    null, // Auto-detect source language
-                    this._currentSecondaryLang, // Use secondary lang as initial target
-                    (translatedText, detectedSourceLang, error) => {
-                        this._translateButton.set_label('Translate from Clipboard');
+        // Show loading state
+        this._resultLabel.set_text('Translating...');
+        this._translateButton.set_label('...');
+
+        // Use auto-detect (null source language) and let API detect
+        // Then decide target language based on detected source
+        this._translator.translate(
+            sourceText,
+            null, // Auto-detect source language
+            this._currentSecondaryLang, // Use secondary lang as initial target
+            (translatedText, detectedSourceLang, error) => {
+                this._translateButton.set_label('Translate');
 
                         if (error) {
                             this._resultLabel.set_text(`Error: ${error}`);
