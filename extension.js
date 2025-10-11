@@ -35,6 +35,14 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         // No longer need to set focus since we removed the text entry
 
+        // Clear result field when menu closes
+        this._menuOpenStateChangedId = this.menu.connect('open-state-changed', (menu, isOpen) => {
+            if (!isOpen) {
+                // Menu is closing - clear the result
+                this._resultLabel.set_text('');
+            }
+        });
+
         // Watch for settings changes
         this._settingsChangedId = this._settings.connect('changed::api-key', () => {
             this._updateTranslator();
@@ -242,8 +250,7 @@ class TranslatorIndicator extends PanelMenu.Button {
             this._copyButton.set_label('Copy to Clipboard');
             this._copyTimeoutId = null;
 
-            // Clear result field after copy confirmation
-            this._resultLabel.set_text('');
+            // Don't clear result field here - let it persist until menu closes
 
             return GLib.SOURCE_REMOVE;
         });
@@ -274,8 +281,7 @@ class TranslatorIndicator extends PanelMenu.Button {
             this._copyButton.set_label('Copy to Clipboard');
             this._copyTimeoutId = null;
 
-            // Clear result field after copy confirmation
-            this._resultLabel.set_text('');
+            // Don't clear result field here - let it persist until menu closes
 
             return GLib.SOURCE_REMOVE;
         });
@@ -285,6 +291,11 @@ class TranslatorIndicator extends PanelMenu.Button {
         if (this._settingsChangedId) {
             this._settings.disconnect(this._settingsChangedId);
             this._settingsChangedId = null;
+        }
+
+        if (this._menuOpenStateChangedId) {
+            this.menu.disconnect(this._menuOpenStateChangedId);
+            this._menuOpenStateChangedId = null;
         }
 
         if (this._copyTimeoutId) {
