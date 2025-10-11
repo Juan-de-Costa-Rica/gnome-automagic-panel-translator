@@ -60,31 +60,31 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
             Gio.SettingsBindFlags.DEFAULT
         );
 
-        // Secondary language row
-        const secondaryLangRow = new Adw.EntryRow({
-            title: 'Secondary Language',
+        // Available languages row (comma-separated)
+        const availableLangsRow = new Adw.EntryRow({
+            title: 'Available Languages',
         });
-        langGroup.add(secondaryLangRow);
+        langGroup.add(availableLangsRow);
 
-        // Bind secondary language to settings
+        // Bind available languages to settings
         settings.bind(
-            'secondary-language',
-            secondaryLangRow,
+            'available-languages',
+            availableLangsRow,
             'text',
             Gio.SettingsBindFlags.DEFAULT
         );
 
         // Language codes help
         const langHelpRow = new Adw.ActionRow({
-            title: 'Common language codes:',
-            subtitle: 'EN, ES, IT, FR, DE, PT-BR, PT-PT, JA, ZH, RU, etc.',
+            title: 'Enter comma-separated language codes:',
+            subtitle: 'Examples: ES,IT,FR,DE,PT-BR or JA,ZH,KO,RU,AR',
         });
         langGroup.add(langHelpRow);
 
         // How it works explanation
         const explanationRow = new Adw.ActionRow({
             title: 'How auto-detection works:',
-            subtitle: 'Extension auto-detects clipboard language. If not your main language → translates to main. If it is your main language → translates to secondary.',
+            subtitle: 'Extension auto-detects clipboard language. If not your main language → translates to main. If it is your main language → translates to selected button language.',
         });
         langGroup.add(explanationRow);
     }

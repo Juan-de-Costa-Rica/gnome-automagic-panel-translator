@@ -72,36 +72,13 @@ class TranslatorIndicator extends PanelMenu.Button {
         box.add_child(secondaryLangLabel);
 
         // Secondary language buttons row
-        const langButtonsBox = new St.BoxLayout({
+        this._langButtonsBox = new St.BoxLayout({
             style: 'margin-bottom: 10px; spacing: 5px;',
         });
 
-        // Common languages - can be expanded
-        const languages = [
-            { code: 'ES', label: 'Spanish' },
-            { code: 'IT', label: 'Italian' },
-            { code: 'FR', label: 'French' },
-            { code: 'DE', label: 'German' },
-            { code: 'PT-BR', label: 'Portuguese' },
-        ];
-
         this._langButtons = {};
 
-        languages.forEach(lang => {
-            const button = new St.Button({
-                label: lang.label,
-                style_class: 'deepl-lang-button',
-            });
-            button.connect('clicked', () => {
-                this._currentSecondaryLang = lang.code;
-                this._settings.set_string('secondary-language', lang.code);
-                this._updateButtonStates();
-            });
-            this._langButtons[lang.code] = button;
-            langButtonsBox.add_child(button);
-        });
-
-        box.add_child(langButtonsBox);
+        box.add_child(this._langButtonsBox);
 
         // Translate from Clipboard button (on its own line)
         this._translateButton = new St.Button({
@@ -149,7 +126,60 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         // Initialize languages from settings
         this._mainLanguage = this._settings.get_string('main-language');
-        this._currentSecondaryLang = this._settings.get_string('secondary-language');
+        this._currentSecondaryLang = this._settings.get_string('last-used-language');
+
+        // Build language buttons dynamically from settings
+        this._rebuildLanguageButtons();
+
+        // Watch for language settings changes
+        this._availableLangsChangedId = this._settings.connect('changed::available-languages', () => {
+            this._rebuildLanguageButtons();
+        });
+    }
+
+    _rebuildLanguageButtons() {
+        // Clear existing buttons
+        this._langButtonsBox.destroy_all_children();
+        this._langButtons = {};
+
+        // Language code to friendly name mapping
+        const languageNames = {
+            'BG': 'Bulgarian', 'CS': 'Czech', 'DA': 'Danish', 'DE': 'German',
+            'EL': 'Greek', 'EN': 'English', 'ES': 'Spanish', 'ET': 'Estonian',
+            'FI': 'Finnish', 'FR': 'French', 'HU': 'Hungarian', 'ID': 'Indonesian',
+            'IT': 'Italian', 'JA': 'Japanese', 'KO': 'Korean', 'LT': 'Lithuanian',
+            'LV': 'Latvian', 'NB': 'Norwegian', 'NL': 'Dutch', 'PL': 'Polish',
+            'PT-BR': 'Portuguese', 'PT-PT': 'Portuguese (PT)', 'RO': 'Romanian',
+            'RU': 'Russian', 'SK': 'Slovak', 'SL': 'Slovenian', 'SV': 'Swedish',
+            'TR': 'Turkish', 'UK': 'Ukrainian', 'ZH': 'Chinese'
+        };
+
+        // Get available languages from settings (comma-separated string)
+        const availableLangsStr = this._settings.get_string('available-languages');
+        const languageCodes = availableLangsStr.split(',').map(code => code.trim()).filter(code => code);
+
+        // Create a button for each language
+        languageCodes.forEach(code => {
+            const label = languageNames[code] || code; // Fallback to code if name not found
+            const button = new St.Button({
+                label: label,
+                style_class: 'deepl-lang-button',
+            });
+            button.connect('clicked', () => {
+                this._currentSecondaryLang = code;
+                this._settings.set_string('last-used-language', code);
+                this._updateButtonStates();
+            });
+            this._langButtons[code] = button;
+            this._langButtonsBox.add_child(button);
+        });
+
+        // Ensure current language is still valid, reset to first if not
+        if (languageCodes.length > 0 && !languageCodes.includes(this._currentSecondaryLang)) {
+            this._currentSecondaryLang = languageCodes[0];
+            this._settings.set_string('last-used-language', this._currentSecondaryLang);
+        }
+
         this._updateButtonStates();
     }
 
@@ -252,6 +282,11 @@ class TranslatorIndicator extends PanelMenu.Button {
         if (this._settingsChangedId) {
             this._settings.disconnect(this._settingsChangedId);
             this._settingsChangedId = null;
+        }
+
+        if (this._availableLangsChangedId) {
+            this._settings.disconnect(this._availableLangsChangedId);
+            this._availableLangsChangedId = null;
         }
 
         if (this._menuOpenStateChangedId) {

@@ -16,11 +16,18 @@
       <description>Your primary language (e.g., 'EN', 'ES', 'FR'). Text detected in other languages will be translated to this.</description>
     </key>
 
-    <!-- Secondary language (for translating from main language) -->
-    <key name="secondary-language" type="s">
+    <!-- Available languages for quick access buttons -->
+    <key name="available-languages" type="s">
+      <default>'ES,IT,FR,DE,PT-BR'</default>
+      <summary>Available languages</summary>
+      <description>Comma-separated list of language codes for quick access buttons (e.g., 'ES,IT,FR,JA,ZH')</description>
+    </key>
+
+    <!-- Last used language (persisted selection) -->
+    <key name="last-used-language" type="s">
       <default>'ES'</default>
-      <summary>Secondary language</summary>
-      <description>Secondary language (e.g., 'ES', 'IT', 'FR'). Text detected in your main language will be translated to this.</description>
+      <summary>Last used language</summary>
+      <description>The last selected language from the quick access buttons</description>
     </key>
 
   </schema>
