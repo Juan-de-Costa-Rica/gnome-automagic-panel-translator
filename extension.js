@@ -33,15 +33,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Initialize translator with API key from settings
         this._updateTranslator();
 
-        // Set focus to text entry when menu opens
-        this.menu.connect('open-state-changed', (menu, open) => {
-            if (open) {
-                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 50, () => {
-                    global.stage.set_key_focus(this._sourceEntry.clutter_text);
-                    return GLib.SOURCE_REMOVE;
-                });
-            }
-        });
+        // No longer need to set focus since we removed the text entry
 
         // Watch for settings changes
         this._settingsChangedId = this._settings.connect('changed::api-key', () => {
@@ -63,26 +55,7 @@ class TranslatorIndicator extends PanelMenu.Button {
             style: 'padding: 10px; min-width: 400px;',
         });
 
-        // Source text label
-        const sourceLabel = new St.Label({
-            text: 'Text to translate:',
-            style: 'font-weight: bold; margin-bottom: 5px;',
-        });
-        box.add_child(sourceLabel);
-
-        // Source text entry
-        this._sourceEntry = new St.Entry({
-            hint_text: 'Enter text here...',
-            track_hover: true,
-            can_focus: true,
-            style: 'margin-bottom: 10px; min-height: 60px;',
-        });
-
-        // Make the text entry editable
-        this._sourceEntry.clutter_text.set_editable(true);
-        this._sourceEntry.clutter_text.set_activatable(true);
-
-        box.add_child(this._sourceEntry);
+        // Removed source text label and entry - now using clipboard instead
 
         // Language buttons row
         const langButtonsBox = new St.BoxLayout({
@@ -113,17 +86,18 @@ class TranslatorIndicator extends PanelMenu.Button {
         });
         langButtonsBox.add_child(this._esToEnButton);
 
-        // Translate button
+        box.add_child(langButtonsBox);
+
+        // Translate from Clipboard button (on its own line)
         this._translateButton = new St.Button({
-            label: 'Translate',
+            label: 'Translate from Clipboard',
             style_class: 'deepl-translate-button',
+            style: 'margin-bottom: 10px;',
         });
         this._translateButton.connect('clicked', () => {
             this._doTranslation();
         });
-        langButtonsBox.add_child(this._translateButton);
-
-        box.add_child(langButtonsBox);
+        box.add_child(this._translateButton);
 
         // Translation result label
         const resultLabel = new St.Label({
@@ -180,31 +154,35 @@ class TranslatorIndicator extends PanelMenu.Button {
     }
 
     _doTranslation() {
-        const sourceText = this._sourceEntry.get_text();
-
-        if (!sourceText || sourceText.trim() === '') {
-            this._resultLabel.set_text('Please enter text to translate.');
-            return;
-        }
-
-        // Show loading state
-        this._resultLabel.set_text('Translating...');
-        this._translateButton.set_label('...');
-
-        // Perform translation
-        this._translator.translate(
-            sourceText,
-            this._currentSourceLang,
-            this._currentTargetLang,
-            (translatedText, error) => {
-                this._translateButton.set_label('Translate');
-
-                if (error) {
-                    this._resultLabel.set_text(`Error: ${error}`);
-                } else {
-                    this._resultLabel.set_text(translatedText);
-                    this._lastTranslation = translatedText;
+        // Read text from clipboard
+        St.Clipboard.get_default().get_text(
+            St.ClipboardType.CLIPBOARD,
+            (clipboard, sourceText) => {
+                if (!sourceText || sourceText.trim() === '') {
+                    this._resultLabel.set_text('Clipboard is empty. Copy text first.');
+                    return;
                 }
+
+                // Show loading state
+                this._resultLabel.set_text('Translating...');
+                this._translateButton.set_label('...');
+
+                // Perform translation
+                this._translator.translate(
+                    sourceText,
+                    this._currentSourceLang,
+                    this._currentTargetLang,
+                    (translatedText, error) => {
+                        this._translateButton.set_label('Translate from Clipboard');
+
+                        if (error) {
+                            this._resultLabel.set_text(`Error: ${error}`);
+                        } else {
+                            this._resultLabel.set_text(translatedText);
+                            this._lastTranslation = translatedText;
+                        }
+                    }
+                );
             }
         );
     }
@@ -234,8 +212,7 @@ class TranslatorIndicator extends PanelMenu.Button {
             this._copyButton.set_label(originalLabel);
             this._copyTimeoutId = null;
 
-            // Clear both text fields after copy confirmation
-            this._sourceEntry.set_text('');
+            // Clear result field after copy confirmation
             this._resultLabel.set_text('');
 
             return GLib.SOURCE_REMOVE;
