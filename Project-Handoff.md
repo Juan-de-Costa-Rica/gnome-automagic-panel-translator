@@ -1,9 +1,9 @@
 # GNOME DeepL Translator Extension - Project Handoff
 
-**Date:** October 11, 2025
+**Date:** October 15, 2025
 **Agent:** Claude (Sonnet 4.5)
-**Status:** ✅ Version 2.0 - PRIMARY Selection Support Implemented
-**Version:** 2.0 (31 commits)
+**Status:** ✅ Version 2.0 - PRIMARY Selection Support (Stable)
+**Version:** 2.0 (at commit 660bcca)
 **Next Step:** Test PRIMARY selection after logout/login, then submit v2.0 to extensions.gnome.org
 
 ---
@@ -937,9 +937,26 @@ The user should NEVER have to ask you to update this document. It should happen 
 - **Commit:** b4b8c34
 - **Status:** ✅ Version 2.0 code complete, needs logout/login to test
 
+### October 15, 2025 - Rollback: Keyboard Shortcut Feature Reverted
+**Issue Found:** Keyboard shortcut feature (commits 9e95ef4, aabd69f, 068108a) broke the extension
+- **Symptom:** Extension State: ERROR - completely unusable after implementing keyboard shortcuts
+- **Root Cause:** Unknown - feature caused extension to fail loading entirely
+- **Action Taken:**
+  - Hard reset to commit 660bcca (last known working state)
+  - Removed keyboard shortcut implementation
+  - Reinstalled extension files and recompiled schema
+- **Decision:** Postpone keyboard shortcuts to future enhancement phase
+- **Commits Reverted:**
+  - 9e95ef4 - Feature: Add keyboard shortcut to toggle translator popup
+  - aabd69f - Docs: Update Project-Handoff with commit hash for keyboard shortcut feature
+  - 068108a - Docs: Add critical workflow reminder for future agents
+- **Current State:** Back to stable v2.0 with PRIMARY selection support (commit 660bcca)
+- **Status:** ✅ Rolled back successfully, extension files reinstalled
+- **Next Step:** User needs to logout/login to reload working extension code
+
 ---
 
-**Status: 🟢 Version 2.0 Ready - Awaiting Testing**
+**Status: 🟢 Version 2.0 Stable - Keyboard Shortcut Rolled Back**
 **Next Agent: User needs to logout/login to load v2.0 code on Wayland, then test PRIMARY selection support. After successful testing, create v2.0 submission zip for extensions.gnome.org.**
 
 **⚠️ IMPORTANT FOR NEXT AGENT:**
@@ -948,5 +965,5 @@ After any meaningful work (features, bug fixes, enhancements), you MUST update t
 ---
 
 *Document created: October 10, 2025*
-*Last updated: October 11, 2025 (after implementing PRIMARY selection support v2.0 - commit b4b8c34)*
+*Last updated: October 15, 2025 (after rolling back keyboard shortcut feature - reset to commit 660bcca)*
 *Agent: Claude (Sonnet 4.5)*
