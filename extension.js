@@ -114,17 +114,6 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         box.add_child(this._langButtonsBox);
 
-        // Translate button (tries PRIMARY selection first, falls back to CLIPBOARD)
-        this._translateButton = new St.Button({
-            label: 'Translate',
-            style_class: 'deepl-translate-button',
-            style: 'margin-bottom: 10px;',
-        });
-        this._translateButton.connect('clicked', () => {
-            this._doTranslation();
-        });
-        box.add_child(this._translateButton);
-
         // Translation result label with copied indicator
         const resultHeaderBox = new St.BoxLayout({
             style: 'margin-bottom: 5px;',
@@ -203,6 +192,8 @@ class TranslatorIndicator extends PanelMenu.Button {
                 this._currentSecondaryLang = code;
                 this._settings.set_string('last-used-language', code);
                 this._updateButtonStates();
+                // Trigger translation immediately when language button is clicked
+                this._doTranslation();
             });
             this._langButtons[code] = button;
             this._langButtonsBox.add_child(button);
@@ -301,7 +292,6 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         // Show loading state
         this._resultLabel.set_text('Translating...');
-        this._translateButton.set_label('...');
 
         // Use auto-detect (null source language) and let API detect
         // Then decide target language based on detected source
@@ -310,8 +300,6 @@ class TranslatorIndicator extends PanelMenu.Button {
             null, // Auto-detect source language
             this._currentSecondaryLang, // Use secondary lang as initial target
             (translatedText, detectedSourceLang, error) => {
-                this._translateButton.set_label('Translate');
-
                 if (error) {
                     this._resultLabel.set_text(`Error: ${error}`);
                     return;
