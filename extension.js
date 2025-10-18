@@ -19,6 +19,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         this._extension = extension;
         this._settings = extension.getSettings();
         this._translator = null;
+        this._lastSourceText = ''; // Track last translated source text for smart auto-translate
 
         // Create panel icon
         this._icon = new St.Icon({
@@ -35,12 +36,16 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         // No longer need to set focus since we removed the text entry
 
-        // Clear result field when menu closes
+        // Auto-translate on menu open if clipboard has new text
         this._menuOpenStateChangedId = this.menu.connect('open-state-changed', (menu, isOpen) => {
-            if (!isOpen) {
+            if (isOpen) {
+                // Menu is opening - check for new text and auto-translate
+                this._checkAndAutoTranslate();
+            } else {
                 // Menu is closing - clear the result and hide copied indicator
                 this._resultLabel.set_text('');
                 this._copiedIndicator.visible = false;
+                // Don't clear _lastSourceText - we need it to compare on next open
             }
         });
 
@@ -223,6 +228,36 @@ class TranslatorIndicator extends PanelMenu.Button {
         }
     }
 
+    _checkAndAutoTranslate() {
+        // Try PRIMARY selection first (selected text), fall back to CLIPBOARD
+        St.Clipboard.get_default().get_text(
+            St.ClipboardType.PRIMARY,
+            (clipboard, primaryText) => {
+                // If PRIMARY is empty, try CLIPBOARD
+                if (!primaryText || primaryText.trim() === '') {
+                    St.Clipboard.get_default().get_text(
+                        St.ClipboardType.CLIPBOARD,
+                        (clipboard, clipboardText) => {
+                            this._autoTranslateIfNew(clipboardText);
+                        }
+                    );
+                    return;
+                }
+                this._autoTranslateIfNew(primaryText);
+            }
+        );
+    }
+
+    _autoTranslateIfNew(text) {
+        // Only auto-translate if:
+        // 1. Text is not empty
+        // 2. Text is different from what we last translated
+        if (text && text.trim() !== '' && text.trim() !== this._lastSourceText) {
+            this._performTranslation(text.trim());
+        }
+        // Otherwise, do nothing (show previous translation or empty state)
+    }
+
     _updateTranslator() {
         const apiKey = this._settings.get_string('api-key');
         if (this._translator) {
@@ -260,6 +295,9 @@ class TranslatorIndicator extends PanelMenu.Button {
             this._resultLabel.set_text('No text found. Select or copy text first.');
             return;
         }
+
+        // Store source text for comparison on next menu open
+        this._lastSourceText = sourceText.trim();
 
         // Show loading state
         this._resultLabel.set_text('Translating...');

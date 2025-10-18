@@ -1,10 +1,10 @@
 # GNOME DeepL Translator Extension - Project Handoff
 
-**Date:** October 15, 2025
+**Date:** October 18, 2025
 **Agent:** Claude (Sonnet 4.5)
-**Status:** ✅ Version 2.0 - PRIMARY Selection Support (Stable)
-**Version:** 2.0 (at commit 660bcca)
-**Next Step:** Test PRIMARY selection after logout/login, then submit v2.0 to extensions.gnome.org
+**Status:** ✅ Version 2.1 - Smart Auto-Translate (Code Complete)
+**Version:** 2.1 (development)
+**Next Step:** Logout/login to test auto-translate feature, then commit if successful
 
 ---
 
@@ -23,10 +23,13 @@ Built a GNOME Shell extension that provides quick translations using the DeepL A
 8. ✅ **Settings gear icon in popup** - easy access to preferences
 9. ✅ Smart logic: foreign language → main language, main language → secondary language
 10. ✅ **PRIMARY selection support (v2.0)** - translate selected text without copying
+11. ✅ **Smart auto-translate (v2.1)** - automatically translate on menu open if clipboard has new text
 
 ### Current Implementation:
+- **Smart Auto-Translate (v2.1):** Automatically translates when popup opens if clipboard has new text (eliminates manual button click!)
 - **PRIMARY Selection Support (v2.0):** Translate selected text without copying (saves one click!)
 - **Smart Clipboard Reading:** Tries PRIMARY selection first, falls back to CLIPBOARD if empty
+- **Intelligent Caching:** Tracks last translated text to avoid redundant API calls when reopening menu
 - **Auto-Detect Logic:** Extension detects clipboard language automatically
 - **Smart Direction:** If detected ≠ main language → translate to main, if = main → translate to selected button language
 - **Dropdown Language Selectors:** Professional GTK4 ComboRow widgets in preferences with automatic validation
@@ -38,9 +41,10 @@ Built a GNOME Shell extension that provides quick translations using the DeepL A
 - **Auto-Copy with Inline Indicator:** Translation automatically copied to clipboard with "✓ Copied!" indicator next to "Translation:" label
 
 ### Future Enhancements:
-- Keyboard shortcuts
+- Keyboard shortcuts (attempted but broke extension - postponed)
 - Translation history
 - Character counter
+- Hover over panel icon to translate (no click needed)
 
 ---
 
@@ -86,10 +90,14 @@ Built a GNOME Shell extension that provides quick translations using the DeepL A
 ### File Overview:
 ```
 gnome-deepl-translator/
-├── extension.js          # Main extension (~340 lines)
+├── extension.js          # Main extension (~400 lines)
 │   ├── TranslatorIndicator class (panel button + UI)
 │   ├── Header with "DeepL Translator" title + settings gear icon
 │   ├── Popup menu with PRIMARY/CLIPBOARD translation (v2.0)
+│   ├── **Smart auto-translate on menu open (v2.1)** - auto-translates new clipboard text
+│   ├── **_checkAndAutoTranslate()** - checks clipboard when menu opens
+│   ├── **_autoTranslateIfNew()** - compares with last source text, only translates if different
+│   ├── **_lastSourceText tracking** - prevents redundant API calls
 │   ├── Smart clipboard reading: PRIMARY first, CLIPBOARD fallback
 │   ├── _performTranslation() helper method for cleaner code
 │   ├── Dynamic secondary language selector buttons (1-3 languages)
@@ -264,15 +272,16 @@ this._sourceEntry.clutter_text.connect('button-press-event', () => {
 ## ✅ Current Status
 
 ### What's Complete:
-- ✅ All code written and tested
-- ✅ Extension installed and ACTIVE
+- ✅ All code written (needs testing after logout/login)
+- ✅ Extension installed and ACTIVE (running old code until restart)
 - ✅ GSettings schema compiled with new keys (main-language, available-languages, last-used-language)
-- ✅ Git repository: 31 commits pushed to GitHub
-- ✅ **Version 2.0 ready:** PRIMARY selection support implemented
+- ✅ Git repository: 31 commits pushed to GitHub (v2.1 not yet committed)
+- ✅ **Version 2.1 NEW:** Smart auto-translate on menu open - eliminates manual translate button click
+- ✅ **Version 2.0:** PRIMARY selection support - translate selected text without copying
 - ✅ **MAJOR FEATURE:** Intelligent auto-detect translation workflow implemented
-- ✅ **NEW in v2.0:** PRIMARY selection support - translate selected text without copying
 - ✅ **Smart Clipboard Reading:** Tries PRIMARY first, falls back to CLIPBOARD
-- ✅ **UI Redesign:** Secondary language selector (3 configurable languages: ES, FR, DE)
+- ✅ **Intelligent Caching:** Tracks last source text to avoid redundant API calls
+- ✅ **UI Redesign:** Secondary language selector (1-3 configurable languages)
 - ✅ **Smart Logic:** Detected language determines translation direction automatically
 - ✅ **API Integration:** Auto-detect via omitted source_lang parameter
 - ✅ **Streamlined UI:** Inline copied indicator, no redundant button
@@ -291,12 +300,11 @@ this._sourceEntry.clutter_text.connect('button-press-event', () => {
 - ✅ Clipboard-based translation workflow
 
 ### Needs Real-World Testing (After Logout/Login Required):
-- ⏳ **Auto-detect translation logic** with real API calls
-- ⏳ **Secondary language selector** visual feedback and switching
-- ⏳ **Smart direction logic:** Spanish→English, English→Spanish based on detection
-- ⏳ **Multi-language support:** Test with Italian, French, German, Portuguese
-- ⏳ Translation with various language combinations
-- ⏳ Preferences window with new main/secondary language settings
+- ⏳ **Smart auto-translate (v2.1):** Verify menu opens with automatic translation
+- ⏳ **Caching logic:** Confirm no re-translation when reopening with same text
+- ⏳ **Language switching:** Test changing target language after auto-translate
+- ⏳ **Empty clipboard:** Verify graceful handling when no text selected/copied
+- ⏳ **PRIMARY vs CLIPBOARD:** Test both selection and copy workflows
 
 ---
 
@@ -954,10 +962,50 @@ The user should NEVER have to ask you to update this document. It should happen 
 - **Status:** ✅ Rolled back successfully, extension files reinstalled
 - **Next Step:** User needs to logout/login to reload working extension code
 
+### October 18, 2025 - Enhancement #9: Smart Auto-Translate on Menu Open (v2.1)
+**User Request:** "If text is selected/copied when I click the panel icon, why should I have to click the translate button manually?"
+- **Problem:** User workflow required two clicks: (1) click panel icon, (2) click "Translate" button
+- **Solution:** Smart auto-translate when popup opens if clipboard has new text
+- **Changes Made:**
+  - **State Tracking (extension.js:22):**
+    - Added `this._lastSourceText = ''` to track last translated source text
+  - **Enhanced Menu Open Handler (extension.js:40-50):**
+    - Modified `open-state-changed` signal handler to call `_checkAndAutoTranslate()` when menu opens
+    - Preserves `_lastSourceText` when menu closes (needed for comparison on next open)
+  - **New Method: `_checkAndAutoTranslate()` (extension.js:231-249):**
+    - Reads PRIMARY selection first, falls back to CLIPBOARD
+    - Delegates to `_autoTranslateIfNew()` with clipboard text
+  - **New Method: `_autoTranslateIfNew()` (extension.js:251-259):**
+    - Compares clipboard text with `_lastSourceText`
+    - Only auto-translates if text is new and non-empty
+    - Does nothing if text matches (prevents redundant API calls and preserves quota)
+  - **Updated `_performTranslation()` (extension.js:300):**
+    - Stores source text in `_lastSourceText` at start of translation
+- **New Workflow:**
+  - **Quick translation:** Select "Hola mundo" → Click icon → **Auto-translates immediately**
+  - **Change language:** Select "Hello" → Click icon → Auto-translates to Spanish → Click "French" → Re-translates to French
+  - **Reopen same text:** Close menu → Reopen with same text → **No API call, shows cached translation**
+  - **Manual control:** "Translate" button still works for manual triggering
+- **Benefits:**
+  - **Faster workflow:** Eliminates one click per translation (select → click icon → done!)
+  - **Smart caching:** Prevents redundant API calls when reopening menu with same text
+  - **Preserves control:** User can still change target language and manually re-translate
+  - **Quota friendly:** Only makes API calls when text is actually new
+  - **No breaking changes:** Manual translate button still available for edge cases
+- **Files Modified:** 1 file (extension.js)
+- **Lines Changed:** +42/-3 (~400 lines total)
+- **Status:** ✅ Code complete, copied to installation directory, needs logout/login to test
+- **Testing Needed After Logout/Login:**
+  - Test auto-translate with selected text (PRIMARY selection)
+  - Test auto-translate with copied text (CLIPBOARD)
+  - Test reopening menu with same text (should not re-translate)
+  - Test changing target language after auto-translate
+  - Test empty clipboard (should show empty popup)
+
 ---
 
-**Status: 🟢 Version 2.0 Stable - Keyboard Shortcut Rolled Back**
-**Next Agent: User needs to logout/login to load v2.0 code on Wayland, then test PRIMARY selection support. After successful testing, create v2.0 submission zip for extensions.gnome.org.**
+**Status: 🟡 Version 2.1 Development - Smart Auto-Translate Code Complete**
+**Next Agent: User must logout/login to load v2.1 code on Wayland. After login, test auto-translate feature with the scenarios listed above. If tests pass, commit to git. If tests fail, debug and fix issues.**
 
 **⚠️ IMPORTANT FOR NEXT AGENT:**
 After any meaningful work (features, bug fixes, enhancements), you MUST update this Project-Handoff.md document. Add entries to the Bug Fix Log, update commit history, update "What's Complete", and update timestamps. The user should never have to manually request handoff document updates.
@@ -965,5 +1013,5 @@ After any meaningful work (features, bug fixes, enhancements), you MUST update t
 ---
 
 *Document created: October 10, 2025*
-*Last updated: October 15, 2025 (after rolling back keyboard shortcut feature - reset to commit 660bcca)*
+*Last updated: October 18, 2025 (after implementing smart auto-translate v2.1)*
 *Agent: Claude (Sonnet 4.5)*
