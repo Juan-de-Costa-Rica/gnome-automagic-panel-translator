@@ -30,5 +30,19 @@
       <description>The last selected language from the quick access buttons</description>
     </key>
 
+    <!-- Auto-copy to clipboard when translating to primary language -->
+    <key name="auto-copy-to-primary" type="b">
+      <default>false</default>
+      <summary>Auto-copy when translating to main language</summary>
+      <description>Automatically copy translation to clipboard when translating to your primary language (reading mode)</description>
+    </key>
+
+    <!-- Auto-copy to clipboard when translating to secondary language -->
+    <key name="auto-copy-to-secondary" type="b">
+      <default>true</default>
+      <summary>Auto-copy when translating to secondary language</summary>
+      <description>Automatically copy translation to clipboard when translating to a secondary language (writing mode)</description>
+    </key>
+
   </schema>
 </schemalist>

@@ -2,9 +2,9 @@
 
 **Date:** October 18, 2025
 **Agent:** Claude (Sonnet 4.5)
-**Status:** ✅ Version 2.1 - Smart Auto-Translate (Code Complete)
-**Version:** 2.1 (development)
-**Next Step:** Logout/login to test auto-translate feature, then commit if successful
+**Status:** ✅ Version 2.2 - Conditional Auto-Copy (Code Complete)
+**Version:** 2.2 (development)
+**Next Step:** Logout/login to test conditional clipboard behavior, then push to git if successful
 
 ---
 
@@ -24,12 +24,15 @@ Built a GNOME Shell extension that provides quick translations using the DeepL A
 9. ✅ Smart logic: foreign language → main language, main language → secondary language
 10. ✅ **PRIMARY selection support (v2.0)** - translate selected text without copying
 11. ✅ **Smart auto-translate (v2.1)** - automatically translate on menu open if clipboard has new text
+12. ✅ **Conditional auto-copy (v2.2)** - user-configurable clipboard behavior based on translation direction
 
 ### Current Implementation:
+- **Conditional Auto-Copy (v2.2):** User-configurable clipboard behavior - copy to primary language (default: OFF), copy to secondary language (default: ON)
 - **Smart Auto-Translate (v2.1):** Automatically translates when popup opens if clipboard has new text (eliminates manual button click!)
 - **PRIMARY Selection Support (v2.0):** Translate selected text without copying (saves one click!)
 - **Smart Clipboard Reading:** Tries PRIMARY selection first, falls back to CLIPBOARD if empty
 - **Intelligent Caching:** Tracks last translated text to avoid redundant API calls when reopening menu
+- **Context-Aware Copying:** Reading mode (foreign→English) vs Writing mode (English→foreign) have different clipboard behaviors
 - **Auto-Detect Logic:** Extension detects clipboard language automatically
 - **Smart Direction:** If detected ≠ main language → translate to main, if = main → translate to selected button language
 - **Dropdown Language Selectors:** Professional GTK4 ComboRow widgets in preferences with automatic validation
@@ -38,7 +41,7 @@ Built a GNOME Shell extension that provides quick translations using the DeepL A
 - **Support for All 30 DeepL Languages:** Easy selection from dropdown (BG, CS, DA, DE, EL, EN, ES, ET, FI, FR, HU, ID, IT, JA, KO, LT, LV, NB, NL, PL, PT-BR, PT-PT, RO, RU, SK, SL, SV, TR, UK, ZH)
 - **No Manual Toggles:** User never has to think about translation direction
 - **Translation Persistence:** Translated text stays visible until menu closes (better UX)
-- **Auto-Copy with Inline Indicator:** Translation automatically copied to clipboard with "✓ Copied!" indicator next to "Translation:" label
+- **Smart Copied Indicator:** "✓ Copied!" indicator only shows when translation is actually copied to clipboard
 
 ### Future Enhancements:
 - Keyboard shortcuts (attempted but broke extension - postponed)
@@ -1002,10 +1005,55 @@ The user should NEVER have to ask you to update this document. It should happen 
   - Test changing target language after auto-translate
   - Test empty clipboard (should show empty popup)
 
+### October 18, 2025 - Enhancement #10: Conditional Auto-Copy to Clipboard (v2.2)
+**User Request:** "When translating to my primary language, I just want to see it (don't copy). When translating to secondary language, I want it copied so I can paste it."
+- **Problem:** Extension always copied translation to clipboard regardless of direction
+- **User Insight:**
+  - Reading mode (Spanish→English): Just want to understand, don't need it copied
+  - Writing mode (English→Spanish): Want to paste into chat, definitely need it copied
+- **Solution:** User-configurable clipboard behavior based on translation direction
+- **Changes Made:**
+  - **Schema Updates (gschema.xml):**
+    - Added `auto-copy-to-primary` boolean (default: false) - don't copy when translating to main language
+    - Added `auto-copy-to-secondary` boolean (default: true) - do copy when translating to secondary language
+  - **Preferences UI (prefs.js:196-236):**
+    - Added new "Clipboard Behavior" PreferencesGroup
+    - Two AdwSwitchRow toggles with descriptive subtitles
+    - First toggle dynamically shows main language name (e.g., "Auto-copy when translating to English")
+    - Bound directly to GSettings for real-time updates
+  - **Extension Logic (extension.js:354-380):**
+    - Modified `_autoCopyToClipboard(text, targetLanguage)` to accept target language parameter
+    - Checks if `targetLanguage === this._mainLanguage` → use `auto-copy-to-primary` setting
+    - Checks if `targetLanguage !== this._mainLanguage` → use `auto-copy-to-secondary` setting
+    - Only copies to clipboard if corresponding setting is enabled
+    - Only shows "✓ Copied!" indicator when actually copied
+  - **Updated call sites:**
+    - Line 338: `_autoCopyToClipboard(finalText, this._mainLanguage)` when translating to primary
+    - Line 348: `_autoCopyToClipboard(translatedText, this._currentSecondaryLang)` when translating to secondary
+- **New Workflow:**
+  - **Reading mode (default):** Select "Hola" → Click icon → Shows "Hello" but doesn't copy
+  - **Writing mode (default):** Select "Hello" → Click icon → Shows "Hola" and copies to clipboard
+  - **User can customize:** Toggle either setting in preferences to change behavior
+- **Benefits:**
+  - **Context-aware:** Different clipboard behavior for reading vs writing
+  - **Smart defaults:** Matches typical usage patterns (read to understand, write to send)
+  - **User control:** Power users can customize both settings independently
+  - **Visual accuracy:** "✓ Copied!" indicator only shows when actually copied
+  - **Preserves workflow:** No breaking changes, just smarter clipboard handling
+- **Files Modified:** 3 files (gschema.xml, prefs.js, extension.js)
+- **Lines Changed:** +56/-8
+- **Status:** ✅ Code complete, copied to installation directory, recompiled schema, needs logout/login to test
+- **Testing Needed After Logout/Login:**
+  - Test auto-copy to primary (default OFF): Spanish→English should NOT copy
+  - Test auto-copy to secondary (default ON): English→Spanish should copy
+  - Test "✓ Copied!" indicator appears only when actually copied
+  - Test toggling settings in preferences changes behavior
+  - Test with different language combinations
+
 ---
 
-**Status: 🟡 Version 2.1 Development - Smart Auto-Translate Code Complete**
-**Next Agent: User must logout/login to load v2.1 code on Wayland. After login, test auto-translate feature with the scenarios listed above. If tests pass, commit to git. If tests fail, debug and fix issues.**
+**Status: 🟡 Version 2.2 Development - Conditional Auto-Copy Code Complete**
+**Next Agent: User must logout/login to load v2.2 code on Wayland. After login, test conditional clipboard behavior with scenarios listed above. If tests pass, push to GitHub. If tests fail, debug and fix issues.**
 
 **⚠️ IMPORTANT FOR NEXT AGENT:**
 After any meaningful work (features, bug fixes, enhancements), you MUST update this Project-Handoff.md document. Add entries to the Bug Fix Log, update commit history, update "What's Complete", and update timestamps. The user should never have to manually request handoff document updates.
@@ -1013,5 +1061,5 @@ After any meaningful work (features, bug fixes, enhancements), you MUST update t
 ---
 
 *Document created: October 10, 2025*
-*Last updated: October 18, 2025 (after implementing smart auto-translate v2.1)*
+*Last updated: October 18, 2025 (after implementing conditional auto-copy v2.2)*
 *Agent: Claude (Sonnet 4.5)*

@@ -192,5 +192,46 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
             subtitle: 'Extension auto-detects clipboard language. If not your main language → translates to main. If it is your main language → translates to selected button language.',
         });
         langGroup.add(explanationRow);
+
+        // Clipboard Behavior group
+        const clipboardGroup = new Adw.PreferencesGroup({
+            title: 'Clipboard Behavior',
+            description: 'Control when translations are automatically copied to clipboard',
+        });
+        page.add(clipboardGroup);
+
+        // Get main language name for display
+        const mainLangCode = settings.get_string('main-language');
+        const mainLangName = languages.find(l => l.code === mainLangCode)?.name || mainLangCode;
+
+        // Auto-copy to primary language toggle
+        const autoCopyPrimaryRow = new Adw.SwitchRow({
+            title: `Auto-copy when translating to ${mainLangName}`,
+            subtitle: 'Copy translation to clipboard when translating to your main language (reading mode)',
+        });
+        clipboardGroup.add(autoCopyPrimaryRow);
+
+        // Bind to settings
+        settings.bind(
+            'auto-copy-to-primary',
+            autoCopyPrimaryRow,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+
+        // Auto-copy to secondary language toggle
+        const autoCopySecondaryRow = new Adw.SwitchRow({
+            title: 'Auto-copy when translating to secondary language',
+            subtitle: 'Copy translation to clipboard when translating to a secondary language (writing mode)',
+        });
+        clipboardGroup.add(autoCopySecondaryRow);
+
+        // Bind to settings
+        settings.bind(
+            'auto-copy-to-secondary',
+            autoCopySecondaryRow,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
     }
 }

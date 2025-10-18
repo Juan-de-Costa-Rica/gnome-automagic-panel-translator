@@ -334,8 +334,8 @@ class TranslatorIndicator extends PanelMenu.Button {
                             } else {
                                 this._resultLabel.set_text(finalText);
                                 this._lastTranslation = finalText;
-                                // Auto-copy to clipboard after successful translation
-                                this._autoCopyToClipboard(finalText);
+                                // Auto-copy to clipboard after successful translation (to primary language)
+                                this._autoCopyToClipboard(finalText, this._mainLanguage);
                             }
                         }
                     );
@@ -344,23 +344,39 @@ class TranslatorIndicator extends PanelMenu.Button {
                     // Use the translation to secondary language we already got
                     this._resultLabel.set_text(translatedText);
                     this._lastTranslation = translatedText;
-                    // Auto-copy to clipboard after successful translation
-                    this._autoCopyToClipboard(translatedText);
+                    // Auto-copy to clipboard after successful translation (to secondary language)
+                    this._autoCopyToClipboard(translatedText, this._currentSecondaryLang);
                 }
             }
         );
     }
 
-    _autoCopyToClipboard(text) {
-        // Automatically copy translation to clipboard
-        St.Clipboard.get_default().set_text(
-            St.ClipboardType.CLIPBOARD,
-            text
-        );
+    _autoCopyToClipboard(text, targetLanguage) {
+        // Check settings to determine if we should auto-copy based on target language
+        let shouldCopy = false;
 
-        // Visual feedback - show "✓ Copied!" indicator
-        // Will stay visible until menu closes (handled by open-state-changed signal)
-        this._copiedIndicator.visible = true;
+        if (targetLanguage === this._mainLanguage) {
+            // Translating to primary language (reading mode)
+            shouldCopy = this._settings.get_boolean('auto-copy-to-primary');
+        } else {
+            // Translating to secondary language (writing mode)
+            shouldCopy = this._settings.get_boolean('auto-copy-to-secondary');
+        }
+
+        if (shouldCopy) {
+            // Copy translation to clipboard
+            St.Clipboard.get_default().set_text(
+                St.ClipboardType.CLIPBOARD,
+                text
+            );
+
+            // Visual feedback - show "✓ Copied!" indicator
+            // Will stay visible until menu closes (handled by open-state-changed signal)
+            this._copiedIndicator.visible = true;
+        } else {
+            // Don't copy, and don't show the copied indicator
+            this._copiedIndicator.visible = false;
+        }
     }
 
     destroy() {
