@@ -200,13 +200,9 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
         });
         page.add(clipboardGroup);
 
-        // Get main language name for display
-        const mainLangCode = settings.get_string('main-language');
-        const mainLangName = languages.find(l => l.code === mainLangCode)?.name || mainLangCode;
-
         // Auto-copy to primary language toggle
         const autoCopyPrimaryRow = new Adw.SwitchRow({
-            title: `Auto-copy when translating to ${mainLangName}`,
+            title: 'Auto-copy when translating to main language',
             subtitle: 'Copy translation to clipboard when translating to your main language (reading mode)',
         });
         clipboardGroup.add(autoCopyPrimaryRow);
