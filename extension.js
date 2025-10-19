@@ -66,7 +66,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         const box = new St.BoxLayout({
             vertical: true,
             style_class: 'deepl-translator-box',
-            style: 'padding: 10px; min-width: 400px;',
+            style: 'padding: 10px; min-width: 400px; max-width: 500px;',
         });
 
         // Header with title and settings button
@@ -135,14 +135,35 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         box.add_child(resultHeaderBox);
 
-        // Translation result display
+        // Translation result display with scrolling for long text
+        const scrollView = new St.ScrollView({
+            style: 'max-height: 300px;',
+            hscrollbar_policy: St.PolicyType.NEVER,
+            vscrollbar_policy: St.PolicyType.AUTOMATIC,
+            x_expand: true,
+            y_expand: true,
+        });
+
+        // Create scrollable container (St.BoxLayout implements StScrollable)
+        // Use GNOME Shell 48 compatible orientation property
+        const scrollBox = new St.BoxLayout({
+            orientation: Clutter.Orientation.VERTICAL,
+            x_expand: true,
+            y_expand: true,
+        });
+
         this._resultLabel = new St.Label({
             text: '',
-            style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; min-height: 60px;',
+            style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; min-height: 60px; max-width: 480px;',
+            x_expand: true,
         });
         this._resultLabel.clutter_text.set_line_wrap(true);
         this._resultLabel.clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
-        box.add_child(this._resultLabel);
+        this._resultLabel.clutter_text.set_ellipsize(Pango.EllipsizeMode.NONE);
+
+        scrollBox.add_child(this._resultLabel);
+        scrollView.set_child(scrollBox);
+        box.add_child(scrollView);
 
         menuItem.add_child(box);
         this.menu.addMenuItem(menuItem);

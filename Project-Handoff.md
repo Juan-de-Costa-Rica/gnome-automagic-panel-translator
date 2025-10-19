@@ -1,10 +1,10 @@
 # GNOME DeepL Translator Extension - Project Handoff
 
-**Date:** October 18, 2025
+**Date:** October 19, 2025
 **Agent:** Claude (Sonnet 4.5)
-**Status:** ✅ Version 2.3 - Language Buttons as Translate Buttons (Code Complete)
-**Version:** 2.3 (development)
-**Next Step:** Ready to push to git
+**Status:** ⚠️ Version 2.4 WIP - Scrollable Text (Partial - No Errors, Needs Scrolling Fix)
+**Version:** 2.4 (development)
+**Next Step:** Debug scrolling issue, then commit and push to git
 
 ---
 
@@ -277,19 +277,21 @@ this._sourceEntry.clutter_text.connect('button-press-event', () => {
 ## ✅ Current Status
 
 ### What's Complete:
-- ✅ All code written (needs testing after logout/login)
-- ✅ Extension installed and ACTIVE (running old code until restart)
-- ✅ GSettings schema compiled with new keys (main-language, available-languages, last-used-language)
-- ✅ Git repository: 31 commits pushed to GitHub (v2.1 not yet committed)
+- ✅ Extension installed and ACTIVE (v2.3 working, v2.4 WIP)
+- ✅ GSettings schema compiled with new keys (main-language, available-languages, last-used-language, auto-copy-to-primary, auto-copy-to-secondary)
+- ✅ Git repository: 31 commits pushed to GitHub (v2.1, v2.2, v2.3 not yet committed)
+- ✅ **Version 2.3 NEW:** Language buttons as translate buttons - clicking language immediately translates
+- ✅ **Version 2.2 NEW:** Conditional auto-copy - user-configurable clipboard behavior based on translation direction
 - ✅ **Version 2.1 NEW:** Smart auto-translate on menu open - eliminates manual translate button click
 - ✅ **Version 2.0:** PRIMARY selection support - translate selected text without copying
+- ⚠️ **Version 2.4 WIP:** Scrollable text implementation (no errors, but scrolling not working yet)
 - ✅ **MAJOR FEATURE:** Intelligent auto-detect translation workflow implemented
 - ✅ **Smart Clipboard Reading:** Tries PRIMARY first, falls back to CLIPBOARD
 - ✅ **Intelligent Caching:** Tracks last source text to avoid redundant API calls
 - ✅ **UI Redesign:** Secondary language selector (1-3 configurable languages)
 - ✅ **Smart Logic:** Detected language determines translation direction automatically
 - ✅ **API Integration:** Auto-detect via omitted source_lang parameter
-- ✅ **Streamlined UI:** Inline copied indicator, no redundant button
+- ✅ **Streamlined UI:** Inline copied indicator, no redundant buttons
 - ✅ **UX Polish:** Copied indicator persists until menu closes (matches translated text behavior)
 - ✅ **Settings Updated:** dconf configured with main-language='EN', available-languages='ES,FR,DE'
 - ✅ **Dropdown Selectors:** Professional GTK4 ComboRow widgets in preferences
@@ -1091,10 +1093,48 @@ The user should NEVER have to ask you to update this document. It should happen 
   - ✅ Loading state still shows via result label
   - ✅ All workflows faster and more intuitive
 
+### October 19, 2025 - Enhancement #12: Scrollable Text for Long Translations (v2.4 WIP)
+**User Request:** "When a large text is translated, the dropdown expands horizontally into my other monitor. Can we have it expand vertically instead and use a scroll bar if needed?"
+- **Problem:** Long translations cause popup menu to expand horizontally off-screen
+- **Solution:** Implement vertical scrolling with St.ScrollView for long text
+- **Changes Made:**
+  - **Main Container Width Constraint (extension.js:66-70):**
+    - Added `max-width: 500px` to prevent horizontal expansion
+  - **ScrollView Implementation (extension.js:138-166):**
+    - Created St.ScrollView with `max-height: 300px`
+    - Disabled horizontal scrollbar, enabled vertical scrollbar (automatic)
+    - Added `x_expand` and `y_expand` properties for proper layout
+  - **Scrollable Container (extension.js:149-153):**
+    - Wrapped St.Label in St.BoxLayout (implements StScrollable interface)
+    - Used GNOME Shell 48 compatible property: `orientation: Clutter.Orientation.VERTICAL`
+    - St.Label cannot be added directly to ScrollView (doesn't implement StScrollable)
+  - **Result Label Configuration (extension.js:155-162):**
+    - Added `x_expand: true` for proper horizontal fill
+    - Maintained text wrapping: `Pango.WrapMode.WORD_CHAR`
+    - Maintained `max-width: 480px` on label itself
+- **Technical Challenges:**
+  - **Issue #1:** First attempt used `add_actor()` method (deprecated in GNOME Shell 46+)
+  - **Issue #2:** Second attempt used `vertical: true` property (deprecated in GNOME Shell 48)
+  - **Issue #3:** Third attempt added label directly to ScrollView (St.Label doesn't implement StScrollable)
+  - **Solution:** Use `orientation: Clutter.Orientation.VERTICAL` and wrap label in St.BoxLayout
+- **GNOME Shell 48 API Changes:**
+  - `St.ScrollView.add_actor()` → `St.ScrollView.set_child()` (required for GNOME 46+)
+  - `vertical: true` → `orientation: Clutter.Orientation.VERTICAL` (required for GNOME 48)
+  - ScrollView children MUST implement StScrollable interface
+  - St.BoxLayout implements StScrollable, St.Label does not
+- **Files Modified:** 1 file (extension.js)
+- **Lines Changed:** +19/-6
+- **Status:** ⚠️ PARTIAL - No more errors, but scrolling not working yet (text still cuts off)
+- **Current Issue:** Text cuts off instead of scrolling - likely missing additional ScrollView configuration
+- **Next Steps:**
+  - Debug why scrollbar doesn't appear for long text
+  - May need to adjust label properties or ScrollView policies
+  - May need to investigate Clutter actor size allocation
+
 ---
 
-**Status: 🟢 Version 2.3 Complete - Language Buttons as Translate Buttons**
-**Next Agent: All features tested and working. Ready to push to GitHub.**
+**Status: ⚠️ Version 2.4 WIP - Scrollable Text (Partial)**
+**Next Agent: Scrollable text feature needs debugging. Extension loads without errors, but text still cuts off instead of scrolling. May need to investigate Clutter actor size allocation or ScrollView configuration. After fixing, commit v2.1, v2.2, v2.3, and v2.4 to git.**
 
 **⚠️ IMPORTANT FOR NEXT AGENT:**
 After any meaningful work (features, bug fixes, enhancements), you MUST update this Project-Handoff.md document. Add entries to the Bug Fix Log, update commit history, update "What's Complete", and update timestamps. The user should never have to manually request handoff document updates.
@@ -1102,5 +1142,5 @@ After any meaningful work (features, bug fixes, enhancements), you MUST update t
 ---
 
 *Document created: October 10, 2025*
-*Last updated: October 18, 2025 (after implementing language buttons as translate buttons v2.3)*
+*Last updated: October 19, 2025 (after implementing scrollable text v2.4 WIP - partial progress)*
 *Agent: Claude (Sonnet 4.5)*
