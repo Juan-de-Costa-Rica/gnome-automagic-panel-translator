@@ -138,28 +138,25 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Translation result display with scrolling for long text
         const scrollView = new St.ScrollView({
             style: 'max-height: 300px;',
-            hscrollbar_policy: St.PolicyType.NEVER,
-            vscrollbar_policy: St.PolicyType.AUTOMATIC,
             x_expand: true,
-            y_expand: true,
+            overlay_scrollbars: true,
         });
+        scrollView.set_policy(St.PolicyType.NEVER, St.PolicyType.AUTOMATIC);
 
         // Create scrollable container (St.BoxLayout implements StScrollable)
-        // Use GNOME Shell 48 compatible orientation property
         const scrollBox = new St.BoxLayout({
-            orientation: Clutter.Orientation.VERTICAL,
+            vertical: true,
             x_expand: true,
-            y_expand: true,
         });
 
         this._resultLabel = new St.Label({
             text: '',
-            style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; min-height: 60px; max-width: 480px;',
+            style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; min-height: 60px;',
             x_expand: true,
         });
-        this._resultLabel.clutter_text.set_line_wrap(true);
-        this._resultLabel.clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
-        this._resultLabel.clutter_text.set_ellipsize(Pango.EllipsizeMode.NONE);
+        this._resultLabel.clutter_text.line_wrap = true;
+        this._resultLabel.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
+        this._resultLabel.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
 
         scrollBox.add_child(this._resultLabel);
         scrollView.set_child(scrollBox);

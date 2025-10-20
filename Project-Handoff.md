@@ -1093,48 +1093,46 @@ The user should NEVER have to ask you to update this document. It should happen 
   - ✅ Loading state still shows via result label
   - ✅ All workflows faster and more intuitive
 
-### October 19, 2025 - Enhancement #12: Scrollable Text for Long Translations (v2.4 WIP)
+### October 19, 2025 - Enhancement #12: Width Constraint (Partial Fix for Large Text)
 **User Request:** "When a large text is translated, the dropdown expands horizontally into my other monitor. Can we have it expand vertically instead and use a scroll bar if needed?"
 - **Problem:** Long translations cause popup menu to expand horizontally off-screen
-- **Solution:** Implement vertical scrolling with St.ScrollView for long text
-- **Changes Made:**
-  - **Main Container Width Constraint (extension.js:66-70):**
-    - Added `max-width: 500px` to prevent horizontal expansion
-  - **ScrollView Implementation (extension.js:138-166):**
-    - Created St.ScrollView with `max-height: 300px`
-    - Disabled horizontal scrollbar, enabled vertical scrollbar (automatic)
-    - Added `x_expand` and `y_expand` properties for proper layout
-  - **Scrollable Container (extension.js:149-153):**
-    - Wrapped St.Label in St.BoxLayout (implements StScrollable interface)
-    - Used GNOME Shell 48 compatible property: `orientation: Clutter.Orientation.VERTICAL`
-    - St.Label cannot be added directly to ScrollView (doesn't implement StScrollable)
-  - **Result Label Configuration (extension.js:155-162):**
-    - Added `x_expand: true` for proper horizontal fill
-    - Maintained text wrapping: `Pango.WrapMode.WORD_CHAR`
-    - Maintained `max-width: 480px` on label itself
-- **Technical Challenges:**
-  - **Issue #1:** First attempt used `add_actor()` method (deprecated in GNOME Shell 46+)
-  - **Issue #2:** Second attempt used `vertical: true` property (deprecated in GNOME Shell 48)
-  - **Issue #3:** Third attempt added label directly to ScrollView (St.Label doesn't implement StScrollable)
-  - **Solution:** Use `orientation: Clutter.Orientation.VERTICAL` and wrap label in St.BoxLayout
-- **GNOME Shell 48 API Changes:**
-  - `St.ScrollView.add_actor()` → `St.ScrollView.set_child()` (required for GNOME 46+)
-  - `vertical: true` → `orientation: Clutter.Orientation.VERTICAL` (required for GNOME 48)
-  - ScrollView children MUST implement StScrollable interface
-  - St.BoxLayout implements StScrollable, St.Label does not
+- **Solution Attempted:** Implement St.ScrollView with vertical scrolling
+- **What Works:**
+  - ✅ **Width constraint implemented** - `max-width: 500px` prevents horizontal expansion into other monitor
+  - ✅ **Text wrapping works** - Long text wraps properly at container width
+  - ✅ **No errors** - Extension loads and runs without errors
+- **What Doesn't Work:**
+  - ❌ **Vertical scrolling** - Text gets clipped instead of showing scrollbar
+  - Multiple approaches attempted (clip_to_allocation, set_policy, overlay_scrollbars, various property combinations)
+  - Likely a deeper Clutter/St limitation with scrollable labels in popup menus
+- **Final Implementation (extension.js:138-163):**
+  ```javascript
+  const scrollView = new St.ScrollView({
+      style: 'max-height: 300px;',
+      x_expand: true,
+      overlay_scrollbars: true,
+  });
+  scrollView.set_policy(St.PolicyType.NEVER, St.PolicyType.AUTOMATIC);
+
+  const scrollBox = new St.BoxLayout({
+      vertical: true,
+      x_expand: true,
+  });
+
+  this._resultLabel = new St.Label({...});
+  scrollBox.add_child(this._resultLabel);
+  scrollView.set_child(scrollBox);
+  ```
+- **Outcome:** Partial success - horizontal expansion fixed (main issue resolved), vertical scrolling not working
+- **User Decision:** "This extension is meant for quick translations, not essays - the width constraint is good enough"
 - **Files Modified:** 1 file (extension.js)
-- **Lines Changed:** +19/-6
-- **Status:** ⚠️ PARTIAL - No more errors, but scrolling not working yet (text still cuts off)
-- **Current Issue:** Text cuts off instead of scrolling - likely missing additional ScrollView configuration
-- **Next Steps:**
-  - Debug why scrollbar doesn't appear for long text
-  - May need to adjust label properties or ScrollView policies
-  - May need to investigate Clutter actor size allocation
+- **Lines Changed:** +25/-6
+- **Status:** ✅ ACCEPTED - Width constraint working, scrolling deferred to future investigation
 
 ---
 
-**Status: ⚠️ Version 2.4 WIP - Scrollable Text (Partial)**
-**Next Agent: Scrollable text feature needs debugging. Extension loads without errors, but text still cuts off instead of scrolling. May need to investigate Clutter actor size allocation or ScrollView configuration. After fixing, commit v2.1, v2.2, v2.3, and v2.4 to git.**
+**Status: 🟢 Version 2.3 Complete + Width Constraint Enhancement**
+**Next Agent: Ready to commit v2.1, v2.2, v2.3, and width constraint fix to git. Vertical scrolling remains unsolved but width constraint prevents horizontal overflow (main issue).**
 
 **⚠️ IMPORTANT FOR NEXT AGENT:**
 After any meaningful work (features, bug fixes, enhancements), you MUST update this Project-Handoff.md document. Add entries to the Bug Fix Log, update commit history, update "What's Complete", and update timestamps. The user should never have to manually request handoff document updates.
