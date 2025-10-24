@@ -1,6 +1,7 @@
 import Soup from 'gi://Soup';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import {isValidLanguage} from './lib/languageMap.js';
 
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
 
@@ -24,6 +25,18 @@ export class DeepLTranslator {
         if (!this.apiKey || this.apiKey === '') {
             console.error('DeepL Translator: API key not configured');
             throw new Error('API key not configured. Please set it in preferences.');
+        }
+
+        // Validate target language (source can be null for auto-detect)
+        if (!targetLang || !isValidLanguage(targetLang)) {
+            console.error('DeepL Translator: Invalid target language code:', targetLang);
+            throw new Error(`Invalid target language code: ${targetLang}`);
+        }
+
+        // Validate source language if provided
+        if (sourceLang !== null && !isValidLanguage(sourceLang)) {
+            console.error('DeepL Translator: Invalid source language code:', sourceLang);
+            throw new Error(`Invalid source language code: ${sourceLang}`);
         }
 
         if (!text || text.trim() === '') {

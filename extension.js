@@ -11,7 +11,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {DeepLTranslator} from './translator.js';
 import {SecureStorage} from './lib/keyring.js';
-import {LANGUAGE_NAMES} from './lib/languageMap.js';
+import {LANGUAGE_NAMES, SUPPORTED_LANGUAGES} from './lib/languageMap.js';
 
 const TranslatorIndicator = GObject.registerClass(
 class TranslatorIndicator extends PanelMenu.Button {
@@ -166,8 +166,13 @@ class TranslatorIndicator extends PanelMenu.Button {
         menuItem.add_child(box);
         this.menu.addMenuItem(menuItem);
 
-        // Initialize languages from settings
+        // Initialize languages from settings with validation
         this._mainLanguage = this._settings.get_string('main-language');
+        if (!SUPPORTED_LANGUAGES.includes(this._mainLanguage)) {
+            console.warn(`DeepL Translator: Invalid main language ${this._mainLanguage}, using EN`);
+            this._mainLanguage = 'EN';
+            this._settings.set_string('main-language', 'EN');
+        }
         this._currentSecondaryLang = this._settings.get_string('last-used-language');
 
         // Build language buttons dynamically from settings
@@ -186,11 +191,28 @@ class TranslatorIndicator extends PanelMenu.Button {
 
         // Get available languages from settings (comma-separated string)
         const availableLangsStr = this._settings.get_string('available-languages');
-        const languageCodes = availableLangsStr.split(',').map(code => code.trim()).filter(code => code);
+        const languageCodes = availableLangsStr.split(',')
+            .map(code => code.trim())
+            .filter(code => code);
 
-        // Create a button for each language
-        languageCodes.forEach(code => {
-            const label = LANGUAGE_NAMES[code] || code; // Fallback to code if name not found
+        // Validate language codes
+        const validCodes = languageCodes.filter(code => {
+            if (!SUPPORTED_LANGUAGES.includes(code)) {
+                console.warn(`DeepL Translator: Invalid language code in settings: ${code}`);
+                return false;
+            }
+            return true;
+        });
+
+        // If no valid codes, use default
+        if (validCodes.length === 0) {
+            console.warn('DeepL Translator: No valid language codes, using default ES');
+            validCodes.push('ES');
+        }
+
+        // Create a button for each valid language
+        validCodes.forEach(code => {
+            const label = LANGUAGE_NAMES[code];
             const button = new St.Button({
                 label: label,
                 style_class: 'deepl-lang-button',
@@ -207,8 +229,8 @@ class TranslatorIndicator extends PanelMenu.Button {
         });
 
         // Ensure current language is still valid, reset to first if not
-        if (languageCodes.length > 0 && !languageCodes.includes(this._currentSecondaryLang)) {
-            this._currentSecondaryLang = languageCodes[0];
+        if (validCodes.length > 0 && !validCodes.includes(this._currentSecondaryLang)) {
+            this._currentSecondaryLang = validCodes[0];
             this._settings.set_string('last-used-language', this._currentSecondaryLang);
         }
 
