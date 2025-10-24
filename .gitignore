@@ -9,4 +9,13 @@ schemas/gschemas.compiled
 # Extension packages
 *.zip
 
+# Node.js (local ESLint only, not needed for extension)
 node_modules/
+package.json
+package-lock.json
+
+# Agent handoff documents (local development only)
+IMPLEMENTATION-GUIDE.md
+Project-Handoff.md
+Quick-Reference.md
+SETUP_NOTES.md
