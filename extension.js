@@ -20,6 +20,7 @@ class TranslatorIndicator extends PanelMenu.Button {
         this._settings = extension.getSettings();
         this._translator = null;
         this._lastSourceText = ''; // Track last translated source text for smart auto-translate
+        this._cancellable = new Gio.Cancellable(); // Cancellable for async operations to prevent memory leaks
 
         // Create panel icon
         this._icon = new St.Icon({
@@ -343,7 +344,8 @@ class TranslatorIndicator extends PanelMenu.Button {
                                 // Auto-copy to clipboard after successful translation (to primary language)
                                 this._autoCopyToClipboard(finalText, this._mainLanguage);
                             }
-                        }
+                        },
+                        this._cancellable
                     );
                 } else {
                     // Detected language IS our main language (or couldn't detect)
@@ -353,7 +355,8 @@ class TranslatorIndicator extends PanelMenu.Button {
                     // Auto-copy to clipboard after successful translation (to secondary language)
                     this._autoCopyToClipboard(translatedText, this._currentSecondaryLang);
                 }
-            }
+            },
+            this._cancellable
         );
     }
 
@@ -399,6 +402,12 @@ class TranslatorIndicator extends PanelMenu.Button {
         if (this._menuOpenStateChangedId) {
             this.menu.disconnect(this._menuOpenStateChangedId);
             this._menuOpenStateChangedId = null;
+        }
+
+        // Cancel any pending async operations
+        if (this._cancellable) {
+            this._cancellable.cancel();
+            this._cancellable = null;
         }
 
         if (this._translator) {

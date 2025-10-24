@@ -1,5 +1,6 @@
 import Soup from 'gi://Soup';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
 
@@ -15,8 +16,9 @@ export class DeepLTranslator {
      * @param {string|null} sourceLang - Source language code (e.g., 'EN', 'ES') or null for auto-detect
      * @param {string} targetLang - Target language code (e.g., 'EN', 'ES')
      * @param {Function} callback - Callback function(translatedText, detectedSourceLang, error)
+     * @param {Gio.Cancellable|null} cancellable - Optional cancellable for async operation
      */
-    translate(text, sourceLang, targetLang, callback) {
+    translate(text, sourceLang, targetLang, callback, cancellable = null) {
         if (!this.apiKey || this.apiKey === '') {
             callback(null, null, 'API key not configured. Please set it in preferences.');
             return;
@@ -44,13 +46,19 @@ export class DeepLTranslator {
                 new GLib.Bytes(new TextEncoder().encode(formData))
             );
 
-            // Send async request
+            // Send async request with cancellable
             this.session.send_and_read_async(
                 message,
                 GLib.PRIORITY_DEFAULT,
-                null,
+                cancellable,
                 (session, result) => {
                     try {
+                        // Check if operation was cancelled
+                        if (cancellable && cancellable.is_cancelled()) {
+                            callback(null, null, 'Translation cancelled');
+                            return;
+                        }
+
                         const bytes = session.send_and_read_finish(result);
                         const decoder = new TextDecoder('utf-8');
                         const responseText = decoder.decode(bytes.get_data());
@@ -75,12 +83,22 @@ export class DeepLTranslator {
                         }
 
                     } catch (error) {
+                        // Check for cancellation errors
+                        if (error.matches && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+                            callback(null, null, 'Translation cancelled');
+                            return;
+                        }
                         callback(null, null, `Error parsing response: ${error.message}`);
                     }
                 }
             );
 
         } catch (error) {
+            // Check for cancellation errors
+            if (error.matches && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+                callback(null, null, 'Translation cancelled');
+                return;
+            }
             callback(null, null, `Request error: ${error.message}`);
         }
     }
@@ -106,7 +124,7 @@ export class DeepLTranslator {
                 errorMessage = `API error (${statusCode}): ${responseText}`;
         }
 
-        callback(null, errorMessage);
+        callback(null, null, errorMessage);
     }
 
     destroy() {
