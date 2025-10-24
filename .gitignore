@@ -10,6 +10,3 @@ schemas/gschemas.compiled
 *.zip
 
 node_modules/
-.eslintignore
-.eslintrc.json
-

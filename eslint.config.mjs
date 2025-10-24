@@ -1,48 +1,45 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import js from '@eslint/js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
-});
-
-export default defineConfig([
-    globalIgnores(["**/node_modules/", "schemas/gschemas.compiled", "**/*.zip"]),
+export default [
+    // Global ignores
     {
-        extends: compat.extends("eslint:recommended"),
+        ignores: ['**/node_modules/', 'schemas/gschemas.compiled', '**/*.zip']
+    },
+
+    // Main configuration
+    {
+        ...js.configs.recommended,
 
         languageOptions: {
-            globals: {
-                imports: "readonly",
-                global: "readonly",
-                log: "readonly",
-                logError: "readonly",
-                print: "readonly",
-                printerr: "readonly",
-            },
+            ecmaVersion: 2021,
+            sourceType: 'module',
 
-            ecmaVersion: 12,
-            sourceType: "module",
+            globals: {
+                // GJS globals
+                imports: 'readonly',
+                global: 'readonly',
+                log: 'readonly',
+                logError: 'readonly',
+                print: 'readonly',
+                printerr: 'readonly',
+                console: 'readonly',
+
+                // Web APIs available in GJS
+                TextEncoder: 'readonly',
+                TextDecoder: 'readonly',
+            }
         },
 
         rules: {
-            indent: ["error", 4],
-            "linebreak-style": ["error", "unix"],
-            quotes: ["error", "single"],
-            semi: ["error", "always"],
-
-            "no-unused-vars": ["warn", {
-                argsIgnorePattern: "^_",
+            'indent': ['error', 4],
+            'linebreak-style': ['error', 'unix'],
+            'quotes': ['error', 'single'],
+            'semi': ['error', 'always'],
+            'no-unused-vars': ['warn', {
+                'argsIgnorePattern': '^_'
             }],
-
-            "no-console": "off",
-            "prefer-const": "warn",
-        },
-    },
-]);
+            'no-console': 'off',
+            'prefer-const': 'warn'
+        }
+    }
+];
