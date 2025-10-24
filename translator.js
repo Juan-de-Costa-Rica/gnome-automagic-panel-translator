@@ -119,17 +119,17 @@ export class DeepLTranslator {
 
         let message;
         switch (statusCode) {
-            case 403:
-                message = 'Authentication failed. Check your API key in preferences.';
-                break;
-            case 456:
-                message = 'Quota exceeded. You have used all your translation quota.';
-                break;
-            case 400:
-                message = 'Bad request. Check your language codes.';
-                break;
-            default:
-                message = `API error (${statusCode}): ${responseText}`;
+        case 403:
+            message = 'Authentication failed. Check your API key in preferences.';
+            break;
+        case 456:
+            message = 'Quota exceeded. You have used all your translation quota.';
+            break;
+        case 400:
+            message = 'Bad request. Check your language codes.';
+            break;
+        default:
+            message = `API error (${statusCode}): ${responseText}`;
         }
 
         return new Error(message);
