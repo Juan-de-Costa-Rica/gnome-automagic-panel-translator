@@ -1,9 +1,9 @@
 {
   "uuid": "deepl-translator@juan-de-costa-rica",
   "name": "DeepL Translator",
-  "description": "Quick translations using DeepL API. Translate text between languages without opening a separate window.",
-  "version": 2,
-  "version-name": "2.0",
+  "description": "Quick translations using DeepL API with secure key storage, smart language detection, and clipboard integration.",
+  "version": 3,
+  "version-name": "3.0",
   "shell-version": [
     "48"
   ],
