@@ -8,6 +8,5 @@
     "48"
   ],
   "url": "https://github.com/juan-de-costa-rica/gnome-deepl-translator",
-  "settings-schema": "org.gnome.shell.extensions.deepl-translator",
-  "stylesheet": "stylesheet.css"
+  "settings-schema": "org.gnome.shell.extensions.deepl-translator"
 }
