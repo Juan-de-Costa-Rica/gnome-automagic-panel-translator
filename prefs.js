@@ -4,6 +4,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {SecureStorage} from './lib/keyring.js';
+import {getLanguageOptions} from './lib/languageMap.js';
 
 export default class DeepLTranslatorPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -66,40 +67,9 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
         });
         page.add(langGroup);
 
-        // Define all supported DeepL languages
-        const languages = [
-            { code: '', name: 'None' },
-            { code: 'BG', name: 'Bulgarian' },
-            { code: 'CS', name: 'Czech' },
-            { code: 'DA', name: 'Danish' },
-            { code: 'DE', name: 'German' },
-            { code: 'EL', name: 'Greek' },
-            { code: 'EN', name: 'English' },
-            { code: 'ES', name: 'Spanish' },
-            { code: 'ET', name: 'Estonian' },
-            { code: 'FI', name: 'Finnish' },
-            { code: 'FR', name: 'French' },
-            { code: 'HU', name: 'Hungarian' },
-            { code: 'ID', name: 'Indonesian' },
-            { code: 'IT', name: 'Italian' },
-            { code: 'JA', name: 'Japanese' },
-            { code: 'KO', name: 'Korean' },
-            { code: 'LT', name: 'Lithuanian' },
-            { code: 'LV', name: 'Latvian' },
-            { code: 'NB', name: 'Norwegian' },
-            { code: 'NL', name: 'Dutch' },
-            { code: 'PL', name: 'Polish' },
-            { code: 'PT-BR', name: 'Portuguese (Brazil)' },
-            { code: 'PT-PT', name: 'Portuguese (Portugal)' },
-            { code: 'RO', name: 'Romanian' },
-            { code: 'RU', name: 'Russian' },
-            { code: 'SK', name: 'Slovak' },
-            { code: 'SL', name: 'Slovenian' },
-            { code: 'SV', name: 'Swedish' },
-            { code: 'TR', name: 'Turkish' },
-            { code: 'UK', name: 'Ukrainian' },
-            { code: 'ZH', name: 'Chinese' },
-        ];
+        // Get language options from shared module
+        const languagesForMain = getLanguageOptions(false); // No "None" option for main language
+        const languagesForSecondary = getLanguageOptions(true); // Include "None" for secondary
 
         // Create string list for ComboRow
         const languageListMain = new Gtk.StringList();
@@ -109,11 +79,12 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
             new Gtk.StringList(),
         ];
 
-        // Populate string lists
-        languages.forEach(lang => {
-            if (lang.code !== '') { // Main language shouldn't be "None"
-                languageListMain.append(lang.name);
-            }
+        // Populate string lists from shared language data
+        languagesForMain.forEach(lang => {
+            languageListMain.append(lang.name);
+        });
+
+        languagesForSecondary.forEach(lang => {
             languageListSecondary.forEach(list => {
                 list.append(lang.name);
             });
@@ -121,20 +92,20 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
 
         // Helper function to find index from language code
         const findLanguageIndex = (code, includeNone = false) => {
-            const startIndex = includeNone ? 0 : 1;
-            for (let i = startIndex; i < languages.length; i++) {
+            const languages = includeNone ? languagesForSecondary : languagesForMain;
+            for (let i = 0; i < languages.length; i++) {
                 if (languages[i].code === code) {
-                    return includeNone ? i : i - 1;
+                    return i;
                 }
             }
-            return includeNone ? 0 : -1; // Default to "None" or -1
+            return 0; // Default to first option
         };
 
         // Helper function to get language code from index
         const getLanguageCode = (index, includeNone = false) => {
-            const actualIndex = includeNone ? index : index + 1;
-            if (actualIndex >= 0 && actualIndex < languages.length) {
-                return languages[actualIndex].code;
+            const languages = includeNone ? languagesForSecondary : languagesForMain;
+            if (index >= 0 && index < languages.length) {
+                return languages[index].code;
             }
             return '';
         };

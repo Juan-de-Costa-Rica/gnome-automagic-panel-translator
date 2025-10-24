@@ -11,6 +11,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {DeepLTranslator} from './translator.js';
 import {SecureStorage} from './lib/keyring.js';
+import {LANGUAGE_NAMES} from './lib/languageMap.js';
 
 const TranslatorIndicator = GObject.registerClass(
 class TranslatorIndicator extends PanelMenu.Button {
@@ -183,25 +184,13 @@ class TranslatorIndicator extends PanelMenu.Button {
         this._langButtonsBox.destroy_all_children();
         this._langButtons = {};
 
-        // Language code to friendly name mapping
-        const languageNames = {
-            'BG': 'Bulgarian', 'CS': 'Czech', 'DA': 'Danish', 'DE': 'German',
-            'EL': 'Greek', 'EN': 'English', 'ES': 'Spanish', 'ET': 'Estonian',
-            'FI': 'Finnish', 'FR': 'French', 'HU': 'Hungarian', 'ID': 'Indonesian',
-            'IT': 'Italian', 'JA': 'Japanese', 'KO': 'Korean', 'LT': 'Lithuanian',
-            'LV': 'Latvian', 'NB': 'Norwegian', 'NL': 'Dutch', 'PL': 'Polish',
-            'PT-BR': 'Portuguese', 'PT-PT': 'Portuguese (PT)', 'RO': 'Romanian',
-            'RU': 'Russian', 'SK': 'Slovak', 'SL': 'Slovenian', 'SV': 'Swedish',
-            'TR': 'Turkish', 'UK': 'Ukrainian', 'ZH': 'Chinese'
-        };
-
         // Get available languages from settings (comma-separated string)
         const availableLangsStr = this._settings.get_string('available-languages');
         const languageCodes = availableLangsStr.split(',').map(code => code.trim()).filter(code => code);
 
         // Create a button for each language
         languageCodes.forEach(code => {
-            const label = languageNames[code] || code; // Fallback to code if name not found
+            const label = LANGUAGE_NAMES[code] || code; // Fallback to code if name not found
             const button = new St.Button({
                 label: label,
                 style_class: 'deepl-lang-button',
