@@ -1,7 +1,9 @@
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import {SecureStorage} from './lib/keyring.js';
 
 export default class DeepLTranslatorPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -18,19 +20,37 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
         });
         page.add(apiGroup);
 
-        // API Key row
+        // API Key row - stored securely in GNOME Keyring
         const apiKeyRow = new Adw.PasswordEntryRow({
             title: 'DeepL API Key',
         });
         apiGroup.add(apiKeyRow);
 
-        // Bind API key to settings
-        settings.bind(
-            'api-key',
-            apiKeyRow,
-            'text',
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        // Load API key from keyring
+        SecureStorage.retrieveApiKey().then(apiKey => {
+            apiKeyRow.set_text(apiKey);
+        }).catch(error => {
+            console.error('DeepL Translator: Failed to load API key from keyring:', error);
+        });
+
+        // Debounced save to keyring (wait 500ms after user stops typing)
+        let saveTimeoutId = null;
+        apiKeyRow.connect('changed', () => {
+            // Cancel previous timeout if still waiting
+            if (saveTimeoutId) {
+                GLib.Source.remove(saveTimeoutId);
+            }
+
+            // Set new timeout to save after 500ms of no typing
+            saveTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                const apiKey = apiKeyRow.get_text();
+                SecureStorage.storeApiKey(apiKey).catch(error => {
+                    console.error('DeepL Translator: Failed to save API key to keyring:', error);
+                });
+                saveTimeoutId = null;
+                return GLib.SOURCE_REMOVE;
+            });
+        });
 
         // Help text for API key
         const apiHelpRow = new Adw.ActionRow({

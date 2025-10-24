@@ -10,6 +10,7 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {DeepLTranslator} from './translator.js';
+import {SecureStorage} from './lib/keyring.js';
 
 const TranslatorIndicator = GObject.registerClass(
 class TranslatorIndicator extends PanelMenu.Button {
@@ -32,8 +33,8 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Build the UI
         this._buildUI();
 
-        // Initialize translator with API key from settings
-        this._updateTranslator();
+        // Initialize translator with API key from keyring
+        this._initializeTranslator();
 
         // No longer need to set focus since we removed the text entry
 
@@ -50,10 +51,8 @@ class TranslatorIndicator extends PanelMenu.Button {
             }
         });
 
-        // Watch for settings changes
-        this._settingsChangedId = this._settings.connect('changed::api-key', () => {
-            this._updateTranslator();
-        });
+        // API key updates are handled directly in prefs.js via keyring
+        // No need to watch for settings changes here
     }
 
     _buildUI() {
@@ -268,12 +267,28 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Otherwise, do nothing (show previous translation or empty state)
     }
 
-    _updateTranslator() {
-        const apiKey = this._settings.get_string('api-key');
-        if (this._translator) {
-            this._translator.destroy();
+    async _initializeTranslator() {
+        try {
+            // Attempt one-time migration from dconf to keyring
+            await SecureStorage.migrateFromSettings(this._settings);
+
+            // Retrieve API key from keyring
+            const apiKey = await SecureStorage.retrieveApiKey();
+
+            // Create or recreate translator with API key from keyring
+            if (this._translator) {
+                this._translator.destroy();
+            }
+            this._translator = new DeepLTranslator(apiKey);
+
+        } catch (error) {
+            console.error('DeepL Translator: Failed to initialize translator:', error);
+            // Create translator with empty key as fallback
+            if (this._translator) {
+                this._translator.destroy();
+            }
+            this._translator = new DeepLTranslator('');
         }
-        this._translator = new DeepLTranslator(apiKey);
     }
 
     _doTranslation() {
