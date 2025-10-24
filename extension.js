@@ -185,15 +185,29 @@ const TranslatorIndicator = GObject.registerClass(
         }
 
         _rebuildLanguageButtons() {
-        // Clear existing buttons
-            this._langButtonsBox.destroy_all_children();
-            this._langButtons = {};
 
             // Get available languages from settings (comma-separated string)
             const availableLangsStr = this._settings.get_string('available-languages');
             const languageCodes = availableLangsStr.split(',')
                 .map(code => code.trim())
                 .filter(code => code);
+
+            // OPTIMIZATION: Check if codes actually changed before rebuilding
+            const currentCodes = Object.keys(this._langButtons).sort().join(',');
+            const newCodes = languageCodes.filter(code => SUPPORTED_LANGUAGES.includes(code)).sort().join(',');
+
+            if (currentCodes === newCodes && Object.keys(this._langButtons).length > 0) {
+                // Codes haven't changed, just update button states
+                this._updateButtonStates();
+                return;
+            }
+
+            // Codes changed, do full rebuild
+            console.log('DeepL Translator: Rebuilding language buttons');
+
+            // Clear existing buttons
+            this._langButtonsBox.destroy_all_children();
+            this._langButtons = {};
 
             // Validate language codes
             const validCodes = languageCodes.filter(code => {
