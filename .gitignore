@@ -8,3 +8,8 @@ schemas/gschemas.compiled
 
 # Extension packages
 *.zip
+
+node_modules/
+.eslintignore
+.eslintrc.json
+
