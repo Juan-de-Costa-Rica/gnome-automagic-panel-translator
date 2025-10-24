@@ -316,7 +316,11 @@ class TranslatorIndicator extends PanelMenu.Button {
         );
     }
 
-    _performTranslation(sourceText) {
+    /**
+     * Perform translation with smart language detection
+     * @param {string} sourceText - Text to translate
+     */
+    async _performTranslation(sourceText) {
         if (!sourceText || sourceText.trim() === '') {
             console.warn('DeepL Translator: Empty source text for translation');
             this._resultLabel.set_text('No text found. Select or copy text first.');
@@ -329,54 +333,46 @@ class TranslatorIndicator extends PanelMenu.Button {
         // Show loading state
         this._resultLabel.set_text('Translating...');
 
-        // Use auto-detect (null source language) and let API detect
-        // Then decide target language based on detected source
-        this._translator.translate(
-            sourceText,
-            null, // Auto-detect source language
-            this._currentSecondaryLang, // Use secondary lang as initial target
-            (translatedText, detectedSourceLang, error) => {
-                if (error) {
-                    console.error('DeepL Translator: Translation error:', error);
-                    this._resultLabel.set_text(`Error: ${error}`);
-                    return;
-                }
+        try {
+            // First translation: auto-detect source, translate to secondary language
+            const result = await this._translator.translate(
+                sourceText,
+                null, // Auto-detect source language
+                this._currentSecondaryLang,
+                this._cancellable
+            );
 
-                // Smart logic: if detected language is our main language,
-                // we got it backwards - translate to secondary language (which we did)
-                // If detected language is NOT our main language, we need to translate to main language
+            // Smart logic: if detected language is NOT our main language,
+            // re-translate to main language (reading mode)
+            if (result.detectedSourceLang && result.detectedSourceLang !== this._mainLanguage) {
+                // Detected foreign language -> translate to main language
+                const finalResult = await this._translator.translate(
+                    sourceText,
+                    null,
+                    this._mainLanguage,
+                    this._cancellable
+                );
 
-                if (detectedSourceLang && detectedSourceLang !== this._mainLanguage) {
-                    // Detected language is NOT our main language
-                    // So translate to our main language
-                    this._translator.translate(
-                        sourceText,
-                        null, // Keep auto-detect
-                        this._mainLanguage,
-                        (finalText, detectedLang, err) => {
-                            if (err) {
-                                console.error('DeepL Translator: Translation error (to main language):', err);
-                                this._resultLabel.set_text(`Error: ${err}`);
-                            } else {
-                                this._resultLabel.set_text(finalText);
-                                this._lastTranslation = finalText;
-                                // Auto-copy to clipboard after successful translation (to primary language)
-                                this._autoCopyToClipboard(finalText, this._mainLanguage);
-                            }
-                        },
-                        this._cancellable
-                    );
-                } else {
-                    // Detected language IS our main language (or couldn't detect)
-                    // Use the translation to secondary language we already got
-                    this._resultLabel.set_text(translatedText);
-                    this._lastTranslation = translatedText;
-                    // Auto-copy to clipboard after successful translation (to secondary language)
-                    this._autoCopyToClipboard(translatedText, this._currentSecondaryLang);
-                }
-            },
-            this._cancellable
-        );
+                this._resultLabel.set_text(finalResult.text);
+                this._lastTranslation = finalResult.text;
+                this._autoCopyToClipboard(finalResult.text, this._mainLanguage);
+            } else {
+                // Detected main language -> use translation to secondary (writing mode)
+                this._resultLabel.set_text(result.text);
+                this._lastTranslation = result.text;
+                this._autoCopyToClipboard(result.text, this._currentSecondaryLang);
+            }
+        } catch (error) {
+            // Handle cancellation silently
+            if (error.message === 'Translation cancelled') {
+                console.log('DeepL Translator: Translation cancelled');
+                return;
+            }
+
+            // Log and display other errors
+            console.error('DeepL Translator: Translation failed:', error);
+            this._resultLabel.set_text(`Error: ${error.message}`);
+        }
     }
 
     _autoCopyToClipboard(text, targetLanguage) {

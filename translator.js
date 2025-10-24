@@ -11,126 +11,115 @@ export class DeepLTranslator {
     }
 
     /**
-     * Translate text using DeepL API
+     * Translate text using DeepL API (Promise-based)
      * @param {string} text - Text to translate
-     * @param {string|null} sourceLang - Source language code (e.g., 'EN', 'ES') or null for auto-detect
-     * @param {string} targetLang - Target language code (e.g., 'EN', 'ES')
-     * @param {Function} callback - Callback function(translatedText, detectedSourceLang, error)
-     * @param {Gio.Cancellable|null} cancellable - Optional cancellable for async operation
+     * @param {string|null} sourceLang - Source language code or null for auto-detect
+     * @param {string} targetLang - Target language code
+     * @param {Gio.Cancellable|null} cancellable - Optional cancellable
+     * @returns {Promise<{text: string, detectedSourceLang: string|null}>}
+     * @throws {Error} If translation fails
      */
-    translate(text, sourceLang, targetLang, callback, cancellable = null) {
+    async translate(text, sourceLang, targetLang, cancellable = null) {
+        // Validate inputs
         if (!this.apiKey || this.apiKey === '') {
             console.error('DeepL Translator: API key not configured');
-            callback(null, null, 'API key not configured. Please set it in preferences.');
-            return;
+            throw new Error('API key not configured. Please set it in preferences.');
         }
 
         if (!text || text.trim() === '') {
             console.warn('DeepL Translator: Empty text provided for translation');
-            callback(null, null, 'No text to translate.');
-            return;
+            throw new Error('No text to translate.');
         }
 
-        try {
-            // Create the message
-            const message = Soup.Message.new('POST', DEEPL_API_URL);
+        // Build request
+        const message = Soup.Message.new('POST', DEEPL_API_URL);
 
-            // Build form data (omit source_lang if null for auto-detect)
-            let formData = `auth_key=${encodeURIComponent(this.apiKey)}&text=${encodeURIComponent(text)}`;
-            if (sourceLang !== null) {
-                formData += `&source_lang=${encodeURIComponent(sourceLang)}`;
-            }
-            formData += `&target_lang=${encodeURIComponent(targetLang)}`;
+        let formData = `auth_key=${encodeURIComponent(this.apiKey)}&text=${encodeURIComponent(text)}`;
+        if (sourceLang !== null) {
+            formData += `&source_lang=${encodeURIComponent(sourceLang)}`;
+        }
+        formData += `&target_lang=${encodeURIComponent(targetLang)}`;
 
-            // Set request body
-            message.set_request_body_from_bytes(
-                'application/x-www-form-urlencoded',
-                new GLib.Bytes(new TextEncoder().encode(formData))
-            );
+        message.set_request_body_from_bytes(
+            'application/x-www-form-urlencoded',
+            new GLib.Bytes(new TextEncoder().encode(formData))
+        );
 
-            // Send async request with cancellable
+        // Wrap async operation in Promise
+        return new Promise((resolve, reject) => {
             this.session.send_and_read_async(
                 message,
                 GLib.PRIORITY_DEFAULT,
                 cancellable,
                 (session, result) => {
                     try {
-                        // Check if operation was cancelled
+                        // Check cancellation
                         if (cancellable && cancellable.is_cancelled()) {
-                            callback(null, null, 'Translation cancelled');
+                            reject(new Error('Translation cancelled'));
                             return;
                         }
 
                         const bytes = session.send_and_read_finish(result);
                         const decoder = new TextDecoder('utf-8');
                         const responseText = decoder.decode(bytes.get_data());
-
-                        // Check HTTP status
                         const statusCode = message.get_status();
 
                         if (statusCode !== 200) {
-                            this._handleError(statusCode, responseText, callback);
+                            const error = this._createErrorFromStatus(statusCode, responseText);
+                            reject(error);
                             return;
                         }
 
-                        // Parse JSON response
                         const response = JSON.parse(responseText);
 
                         if (response.translations && response.translations.length > 0) {
-                            const translatedText = response.translations[0].text;
-                            const detectedSourceLang = response.translations[0].detected_source_language || null;
-                            callback(translatedText, detectedSourceLang, null);
+                            resolve({
+                                text: response.translations[0].text,
+                                detectedSourceLang: response.translations[0].detected_source_language || null
+                            });
                         } else {
-                            callback(null, null, 'No translation received from DeepL.');
+                            reject(new Error('No translation received from DeepL.'));
                         }
-
                     } catch (error) {
-                        // Check for cancellation errors
+                        // Check for cancellation
                         if (error.matches && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
-                            callback(null, null, 'Translation cancelled');
+                            reject(new Error('Translation cancelled'));
                             return;
                         }
                         console.error('DeepL Translator: Error parsing API response:', error);
-                        callback(null, null, `Error parsing response: ${error.message}`);
+                        reject(new Error(`Error parsing response: ${error.message}`));
                     }
                 }
             );
-
-        } catch (error) {
-            // Check for cancellation errors
-            if (error.matches && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
-                callback(null, null, 'Translation cancelled');
-                return;
-            }
-            console.error('DeepL Translator: Request error:', error);
-            callback(null, null, `Request error: ${error.message}`);
-        }
+        });
     }
 
     /**
-     * Handle API errors
+     * Create error object from API status code
      * @private
+     * @param {number} statusCode - HTTP status code
+     * @param {string} responseText - Response body
+     * @returns {Error} Error object with appropriate message
      */
-    _handleError(statusCode, responseText, callback) {
+    _createErrorFromStatus(statusCode, responseText) {
         console.error(`DeepL Translator: API error ${statusCode}:`, responseText);
 
-        let errorMessage;
-
+        let message;
         switch (statusCode) {
             case 403:
-                errorMessage = 'Authentication failed. Check your API key in preferences.';
+                message = 'Authentication failed. Check your API key in preferences.';
                 break;
             case 456:
-                errorMessage = 'Quota exceeded. You have used all your translation quota.';
+                message = 'Quota exceeded. You have used all your translation quota.';
                 break;
             case 400:
-                errorMessage = 'Bad request. Check your language codes.';
+                message = 'Bad request. Check your language codes.';
                 break;
             default:
-                errorMessage = `API error (${statusCode}): ${responseText}`;
+                message = `API error (${statusCode}): ${responseText}`;
         }
 
-        callback(null, null, errorMessage);
+        return new Error(message);
     }
 
     destroy() {
