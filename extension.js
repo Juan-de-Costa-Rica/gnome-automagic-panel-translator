@@ -302,6 +302,7 @@ class TranslatorIndicator extends PanelMenu.Button {
                         St.ClipboardType.CLIPBOARD,
                         (clipboard, clipboardText) => {
                             if (!clipboardText || clipboardText.trim() === '') {
+                                console.warn('DeepL Translator: No text in clipboard');
                                 this._resultLabel.set_text('No text found. Select or copy text first.');
                                 return;
                             }
@@ -317,6 +318,7 @@ class TranslatorIndicator extends PanelMenu.Button {
 
     _performTranslation(sourceText) {
         if (!sourceText || sourceText.trim() === '') {
+            console.warn('DeepL Translator: Empty source text for translation');
             this._resultLabel.set_text('No text found. Select or copy text first.');
             return;
         }
@@ -335,6 +337,7 @@ class TranslatorIndicator extends PanelMenu.Button {
             this._currentSecondaryLang, // Use secondary lang as initial target
             (translatedText, detectedSourceLang, error) => {
                 if (error) {
+                    console.error('DeepL Translator: Translation error:', error);
                     this._resultLabel.set_text(`Error: ${error}`);
                     return;
                 }
@@ -352,6 +355,7 @@ class TranslatorIndicator extends PanelMenu.Button {
                         this._mainLanguage,
                         (finalText, detectedLang, err) => {
                             if (err) {
+                                console.error('DeepL Translator: Translation error (to main language):', err);
                                 this._resultLabel.set_text(`Error: ${err}`);
                             } else {
                                 this._resultLabel.set_text(finalText);

@@ -20,11 +20,13 @@ export class DeepLTranslator {
      */
     translate(text, sourceLang, targetLang, callback, cancellable = null) {
         if (!this.apiKey || this.apiKey === '') {
+            console.error('DeepL Translator: API key not configured');
             callback(null, null, 'API key not configured. Please set it in preferences.');
             return;
         }
 
         if (!text || text.trim() === '') {
+            console.warn('DeepL Translator: Empty text provided for translation');
             callback(null, null, 'No text to translate.');
             return;
         }
@@ -88,6 +90,7 @@ export class DeepLTranslator {
                             callback(null, null, 'Translation cancelled');
                             return;
                         }
+                        console.error('DeepL Translator: Error parsing API response:', error);
                         callback(null, null, `Error parsing response: ${error.message}`);
                     }
                 }
@@ -99,6 +102,7 @@ export class DeepLTranslator {
                 callback(null, null, 'Translation cancelled');
                 return;
             }
+            console.error('DeepL Translator: Request error:', error);
             callback(null, null, `Request error: ${error.message}`);
         }
     }
@@ -108,6 +112,8 @@ export class DeepLTranslator {
      * @private
      */
     _handleError(statusCode, responseText, callback) {
+        console.error(`DeepL Translator: API error ${statusCode}:`, responseText);
+
         let errorMessage;
 
         switch (statusCode) {
