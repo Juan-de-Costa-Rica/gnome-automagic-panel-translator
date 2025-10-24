@@ -49,9 +49,19 @@ Then **log out and log back in** to load the extension.
 
 1. Get your free DeepL API key at: https://www.deepl.com/pro-api
 2. Open extension preferences: Right-click the panel icon → Preferences
-3. Enter your API key
+3. Enter your API key (securely stored in GNOME Keyring)
 4. (Optional) Set your main language (default: EN)
 5. (Optional) Customize available languages: Enter comma-separated codes like `ES,IT,FR,JA,ZH`
+
+## Security
+
+Your DeepL API key is stored securely using GNOME Keyring (libsecret):
+- **Encrypted at rest** - API key is never stored in plain text
+- **User-isolated** - Only accessible to your user account
+- **System integration** - Managed by GNOME Keychain (Seahorse)
+- **Auto-migration** - Existing keys automatically migrated from dconf to keyring
+
+If you previously used this extension, your API key will be automatically migrated from dconf to secure storage on first run.
 
 ## Usage
 
@@ -109,11 +119,47 @@ See [DeepL's supported languages](https://www.deepl.com/docs-api/translate-text/
 
 ## Development
 
-Built with:
-- GJS (GNOME JavaScript)
-- Soup 3 for HTTP requests
-- ESM modules (GNOME 45+)
-- GSettings for configuration
+Built with modern JavaScript patterns and GNOME best practices:
+- **GJS (GNOME JavaScript)** - Native GNOME Shell integration
+- **Soup 3** - Modern async HTTP requests with cancellation support
+- **ESM modules** - ES6+ module system (GNOME 45+)
+- **Async/await** - Promise-based async operations for clean code
+- **libsecret** - Secure API key storage via GNOME Keyring
+- **ESLint** - Code quality and consistency enforcement
+- **JSDoc** - Comprehensive inline documentation
+
+### Code Quality
+- Modern async/await patterns (no callback hell)
+- DRY principle with shared language mapping module
+- Input validation for all user inputs and API calls
+- Memory leak prevention with Gio.Cancellable pattern
+- Comprehensive error logging for debugging
+- ESLint configuration with zero errors/warnings
+
+### Architecture
+```
+extension.js      - Main extension logic and UI
+translator.js     - DeepL API wrapper with validation
+prefs.js          - Preferences dialog
+lib/keyring.js    - Secure API key storage wrapper
+lib/languageMap.js - Shared language data (DRY)
+schemas/          - GSettings schema definitions
+```
+
+## Recent Improvements
+
+### Version 2.6 (Phase 2 - Code Quality)
+- Modernized to async/await pattern for cleaner code
+- Extracted shared language mapping module (DRY principle)
+- Added input validation for language codes
+- Set up ESLint for code quality enforcement
+- Optimized UI button rebuilding for better performance
+
+### Version 2.5 (Phase 1 - Critical Fixes)
+- **Security**: Migrated API key storage to GNOME Keyring (encrypted)
+- Added Gio.Cancellable pattern to prevent memory leaks
+- Fixed Soup.Session cleanup for proper resource management
+- Added comprehensive error logging throughout codebase
 
 ## Future Enhancements
 - [x] Translate from clipboard (Implemented)
@@ -121,6 +167,9 @@ Built with:
 - [x] Auto-copy to clipboard (Implemented)
 - [x] Multiple language pairs (Implemented)
 - [x] Customizable language buttons (Implemented)
+- [x] Secure API key storage (Implemented v2.5)
+- [x] Modern async patterns (Implemented v2.6)
+- [x] Code quality tooling (Implemented v2.6)
 - [ ] Dropdown language selector UI in preferences
 - [ ] Keyboard shortcut support
 - [ ] Translation history
