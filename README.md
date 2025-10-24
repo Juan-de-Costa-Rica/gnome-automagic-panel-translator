@@ -10,12 +10,12 @@
 
 ## Features
 
-- 🔐 **Secure** - API keys encrypted with GNOME Keyring
-- 🧠 **Smart** - Auto-detects language and translation direction
-- ⚡ **Fast** - One-click translate from clipboard
-- 📋 **Integrated** - Auto-copy results, no window switching
-- 🌍 **30+ Languages** - All DeepL-supported languages
-- ⚙️ **Customizable** - Choose which language buttons appear
+- **Simple** - Select text, click panel icon, done
+- **Secure** - API keys encrypted with GNOME Keyring
+- **Smart** - Auto-detects language and translation direction
+- **Integrated** - Auto-copy results, no window switching
+- **30+ Languages** - All DeepL-supported languages
+- **Customizable** - Choose which language buttons appear
 
 ## Installation
 
@@ -41,17 +41,27 @@ gnome-extensions enable deepl-translator@juan-de-costa-rica
 
 ## Quick Start
 
-1. **Get API Key** - Sign up for free at [deepl.com/pro-api](https://www.deepl.com/pro-api) (500K chars/month free)
-2. **Configure** - Right-click the panel icon → Preferences → Enter API key
-3. **Translate** - Copy any text (Ctrl+C), click the panel icon, select language
-4. **Done** - Translation auto-copied to clipboard, ready to paste!
+1. Get your free API key at [deepl.com/pro-api](https://www.deepl.com/pro-api) (500K chars/month free)
+2. Right-click the panel icon → Preferences
+3. Enter your API key
+4. Set your main language (default: English)
+5. Choose which secondary languages appear as buttons (default: Spanish, Italian, French, German, Portuguese)
 
-### Smart Translation
+## Usage
 
-- **Reading mode**: Foreign text → Your main language (e.g., Spanish → English)
-- **Writing mode**: Your main language → Selected language (e.g., English → Spanish)
+The extension translates text with a single click:
 
-No manual switching needed - it just works!
+1. **Select or copy text** - Selected text (highlighted) takes priority; clipboard (Ctrl+C) is used if nothing is selected
+2. **Click the panel icon** - Translation appears instantly in the popup
+3. **Auto-copy** - Translation is automatically copied to clipboard (configurable in settings)
+
+### Translation Logic
+
+The extension automatically detects the source language and translates:
+- **Foreign language detected** → Translates FROM foreign language TO your main language (e.g., Spanish → English)
+- **Main language detected** → Translates FROM main language TO selected secondary language (e.g., English → Spanish)
+
+Click language buttons in the popup to change which secondary language to translate to.
 
 ## Security
 
@@ -67,20 +77,9 @@ Your API key is **encrypted at rest** using GNOME Keyring (libsecret), never sto
 
 Contributions welcome! Please check [CHANGELOG.md](CHANGELOG.md) for recent changes.
 
-### For Developers
+## Bug Reports
 
-Built with modern GNOME best practices:
-- Async/await patterns
-- Memory leak prevention (Gio.Cancellable)
-- ESLint with zero warnings
-- Comprehensive JSDoc documentation
-
-See the code for architecture details.
-
-## Support
-
-- 🐛 **Bug reports**: [GitHub Issues](https://github.com/juan-de-costa-rica/gnome-deepl-translator/issues)
-- 💬 **Questions**: [GNOME Extensions Matrix](https://matrix.to/#/#extensions:gnome.org)
+Bugs should be reported to the [GitHub issue tracker](https://github.com/juan-de-costa-rica/gnome-deepl-translator/issues).
 
 ## License
 
