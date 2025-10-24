@@ -128,7 +128,14 @@ export class DeepLTranslator {
     }
 
     destroy() {
-        // Cleanup
-        this.session = null;
+        // Properly cleanup Soup.Session
+        if (this.session) {
+            // Abort any pending requests
+            this.session.abort();
+            // Allow GC to cleanup
+            this.session = null;
+        }
+        // Clear API key from memory
+        this.apiKey = null;
     }
 }
