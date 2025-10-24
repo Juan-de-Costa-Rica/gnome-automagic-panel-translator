@@ -5,20 +5,64 @@ import {isValidLanguage} from './lib/languageMap.js';
 
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
 
+/**
+ * DeepL API Translation Service
+ *
+ * Handles communication with the DeepL API for text translation.
+ * Uses GNOME Soup 3 for HTTP requests with async/await pattern.
+ * Includes input validation, proper error handling, and cancellation support.
+ *
+ * @example
+ * const translator = new DeepLTranslator(apiKey);
+ * try {
+ *   const result = await translator.translate('Hello', null, 'ES');
+ *   console.log(result.text); // "Hola"
+ *   console.log(result.detectedSourceLang); // "EN"
+ * } catch (error) {
+ *   console.error('Translation failed:', error.message);
+ * }
+ */
 export class DeepLTranslator {
+    /**
+     * Create a new DeepL translator instance
+     *
+     * @param {string} apiKey - DeepL API key (free or pro tier)
+     */
     constructor(apiKey) {
         this.apiKey = apiKey;
         this.session = new Soup.Session();
     }
 
     /**
-     * Translate text using DeepL API (Promise-based)
-     * @param {string} text - Text to translate
-     * @param {string|null} sourceLang - Source language code or null for auto-detect
-     * @param {string} targetLang - Target language code
-     * @param {Gio.Cancellable|null} cancellable - Optional cancellable
-     * @returns {Promise<{text: string, detectedSourceLang: string|null}>}
-     * @throws {Error} If translation fails
+     * Translate text using DeepL API
+     *
+     * Supports auto-detection when sourceLang is null.
+     * Returns both translated text and detected source language.
+     * Validates all inputs before making API request.
+     *
+     * @param {string} text - Text to translate (max 50,000 characters for free tier)
+     * @param {string|null} sourceLang - Source language code (e.g., 'EN', 'ES') or null for auto-detect
+     * @param {string} targetLang - Target language code (e.g., 'EN', 'ES')
+     * @param {Gio.Cancellable|null} cancellable - Optional cancellable for async operation
+     * @returns {Promise<{text: string, detectedSourceLang: string|null}>} Translation result
+     * @throws {Error} If API key is invalid, quota exceeded, invalid language code, or network error
+     *
+     * @example
+     * // Auto-detect source language
+     * const result = await translator.translate('Hello world', null, 'ES');
+     * console.log(result.text); // "Hola mundo"
+     * console.log(result.detectedSourceLang); // "EN"
+     *
+     * @example
+     * // Explicit source language
+     * const result = await translator.translate('Hello', 'EN', 'FR');
+     * console.log(result.text); // "Bonjour"
+     *
+     * @example
+     * // With cancellation support
+     * const cancellable = new Gio.Cancellable();
+     * const result = await translator.translate('Hello', null, 'DE', cancellable);
+     * // Later: cancellable.cancel();
      */
     async translate(text, sourceLang, targetLang, cancellable = null) {
         // Validate inputs
@@ -135,6 +179,12 @@ export class DeepLTranslator {
         return new Error(message);
     }
 
+    /**
+     * Cleanup translator resources
+     *
+     * Aborts any pending HTTP requests and clears sensitive data from memory.
+     * Should be called when the translator is no longer needed to prevent memory leaks.
+     */
     destroy() {
         // Properly cleanup Soup.Session
         if (this.session) {

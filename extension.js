@@ -10,8 +10,26 @@ import {DeepLTranslator} from './translator.js';
 import {SecureStorage} from './lib/keyring.js';
 import {LANGUAGE_NAMES, SUPPORTED_LANGUAGES} from './lib/languageMap.js';
 
+/**
+ * DeepL Translator Indicator
+ *
+ * GNOME Shell panel button that provides quick access to translation functionality.
+ * Features auto-detection, smart language switching, and clipboard integration.
+ *
+ * Modes:
+ * - Reading mode: Foreign text → Main language (with auto-copy option)
+ * - Writing mode: Main language → Secondary language (with auto-copy option)
+ */
 const TranslatorIndicator = GObject.registerClass(
     class TranslatorIndicator extends PanelMenu.Button {
+        /**
+         * Initialize the translator indicator
+         *
+         * Sets up the UI, initializes the translator with secure API key from keyring,
+         * and establishes settings watchers for dynamic configuration updates.
+         *
+         * @param {Extension} extension - The extension instance
+         */
         _init(extension) {
             super._init(0.0, 'DeepL Translator', false);
 
@@ -53,6 +71,17 @@ const TranslatorIndicator = GObject.registerClass(
         // No need to watch for settings changes here
         }
 
+        /**
+         * Build the user interface for the translation popup
+         *
+         * Creates:
+         * - Header with title and settings button
+         * - Secondary language selector buttons
+         * - Translation result display with scrolling support
+         * - Copied indicator
+         *
+         * @private
+         */
         _buildUI() {
         // Create a custom menu item container
             const menuItem = new PopupMenu.PopupBaseMenuItem({
@@ -181,8 +210,16 @@ const TranslatorIndicator = GObject.registerClass(
             });
         }
 
+        /**
+         * Rebuild language buttons from settings
+         *
+         * Dynamically creates buttons based on available-languages setting.
+         * Validates language codes and falls back to defaults if invalid.
+         * Only rebuilds when language codes actually change (optimized).
+         *
+         * @private
+         */
         _rebuildLanguageButtons() {
-
             // Get available languages from settings (comma-separated string)
             const availableLangsStr = this._settings.get_string('available-languages');
             const languageCodes = availableLangsStr.split(',')
@@ -248,6 +285,14 @@ const TranslatorIndicator = GObject.registerClass(
             this._updateButtonStates();
         }
 
+        /**
+         * Update button visual states to show selected language
+         *
+         * Adds 'deepl-lang-button-active' class to selected button,
+         * removes from others.
+         *
+         * @private
+         */
         _updateButtonStates() {
         // Update button styling to show which secondary language is selected
             for (const [code, button] of Object.entries(this._langButtons)) {
@@ -259,6 +304,14 @@ const TranslatorIndicator = GObject.registerClass(
             }
         }
 
+        /**
+         * Check clipboard and auto-translate if text is new
+         *
+         * Tries PRIMARY selection first (selected text), falls back to CLIPBOARD.
+         * Only translates if text differs from last translation to avoid redundant API calls.
+         *
+         * @private
+         */
         _checkAndAutoTranslate() {
         // Try PRIMARY selection first (selected text), fall back to CLIPBOARD
             St.Clipboard.get_default().get_text(
@@ -339,9 +392,15 @@ const TranslatorIndicator = GObject.registerClass(
         }
 
         /**
-     * Perform translation with smart language detection
-     * @param {string} sourceText - Text to translate
-     */
+         * Perform translation with smart language detection
+         *
+         * Smart logic:
+         * - If detected language ≠ main language → translate to main (reading mode)
+         * - If detected language = main language → translate to secondary (writing mode)
+         *
+         * @param {string} sourceText - Text to translate
+         * @private
+         */
         async _performTranslation(sourceText) {
             if (!sourceText || sourceText.trim() === '') {
                 console.warn('DeepL Translator: Empty source text for translation');
@@ -397,6 +456,19 @@ const TranslatorIndicator = GObject.registerClass(
             }
         }
 
+        /**
+         * Auto-copy translation to clipboard based on settings
+         *
+         * Checks user preferences:
+         * - auto-copy-to-primary: Copy when translating to main language
+         * - auto-copy-to-secondary: Copy when translating to secondary language
+         *
+         * Shows "✓ Copied!" indicator when copy occurs.
+         *
+         * @param {string} text - Translated text to copy
+         * @param {string} targetLanguage - Language code of the translation
+         * @private
+         */
         _autoCopyToClipboard(text, targetLanguage) {
         // Check settings to determine if we should auto-copy based on target language
             let shouldCopy = false;
@@ -425,6 +497,13 @@ const TranslatorIndicator = GObject.registerClass(
             }
         }
 
+        /**
+         * Cleanup resources and disconnect signals
+         *
+         * Must be called when indicator is destroyed to prevent memory leaks.
+         * Disconnects settings watchers, menu signals, cancels pending operations,
+         * and destroys translator instance.
+         */
         destroy() {
             if (this._settingsChangedId) {
                 this._settings.disconnect(this._settingsChangedId);
