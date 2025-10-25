@@ -170,7 +170,7 @@
 
         .benefits-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
             margin-top: 3rem;
         }
@@ -442,6 +442,10 @@
                 margin-left: 0;
                 display: block;
                 margin-top: 1rem;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
