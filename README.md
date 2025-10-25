@@ -34,7 +34,7 @@ cd gnome-deepl-translator
 ./install.sh
 ```
 
-Log out and back in, then enable the extension:
+**Important:** Log out and log back in (required), then enable:
 ```bash
 gnome-extensions enable deepl-translator@juan-de-costa-rica
 ```

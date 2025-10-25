@@ -2,33 +2,36 @@
 
 # Installation script for DeepL Translator GNOME Extension
 
+set -e
+
 EXTENSION_UUID="deepl-translator@juan-de-costa-rica"
-INSTALL_DIR="$HOME/.local/share/gnome-shell/extensions/$EXTENSION_UUID"
 
-echo "Installing DeepL Translator extension..."
+echo "Building extension package..."
 
-# Create installation directory
-mkdir -p "$INSTALL_DIR"
+# Create package using the flat packaging script
+./package-flat.sh
 
-# Copy extension files
-cp extension.js "$INSTALL_DIR/"
-cp prefs.js "$INSTALL_DIR/"
-cp translator.js "$INSTALL_DIR/"
-cp metadata.json "$INSTALL_DIR/"
-cp README.md "$INSTALL_DIR/"
+# Get the zip filename
+VERSION=$(grep -oP '"version":\s*\K\d+' metadata.json)
+ZIP_FILE="${EXTENSION_UUID}-v${VERSION}-flat.zip"
 
-# Copy schemas
-cp -r schemas "$INSTALL_DIR/"
+if [ ! -f "$ZIP_FILE" ]; then
+    echo "Error: Package file $ZIP_FILE not found"
+    exit 1
+fi
 
-# Compile schemas
-echo "Compiling GSettings schemas..."
-glib-compile-schemas "$INSTALL_DIR/schemas/"
+echo "Installing extension using gnome-extensions install..."
+gnome-extensions install --force "$ZIP_FILE"
 
-echo "Extension installed to: $INSTALL_DIR"
 echo ""
-echo "To enable the extension, run:"
+echo "✓ Extension installed successfully!"
+echo ""
+echo "IMPORTANT: You must restart GNOME Shell before enabling:"
+echo "  - On Wayland: Log out and log back in"
+echo "  - On X11: Press Alt+F2, type 'r', and press Enter"
+echo ""
+echo "After restarting, enable the extension with:"
 echo "  gnome-extensions enable $EXTENSION_UUID"
 echo ""
-echo "Then restart GNOME Shell (logout/login or Alt+F2, type 'r' on X11)"
-echo ""
-echo "Configure your DeepL API key in the extension preferences."
+echo "Then configure your DeepL API key in preferences:"
+echo "  Right-click the panel icon → Preferences"
