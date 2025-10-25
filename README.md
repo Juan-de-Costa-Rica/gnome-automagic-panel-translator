@@ -32,10 +32,10 @@ Download and install the latest release:
 
 ```bash
 # Download the extension package
-wget https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator/releases/download/v4.0/automagic-panel-translator@juan-de-costa-rica-v4-flat.zip
+wget https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator/releases/download/v4.0/automagic-panel-translator@juan-de-costa-rica-v4.zip
 
 # Install
-gnome-extensions install automagic-panel-translator@juan-de-costa-rica-v4-flat.zip
+gnome-extensions install automagic-panel-translator@juan-de-costa-rica-v4.zip
 ```
 
 **Important:** Log out and log back in (required), then enable:

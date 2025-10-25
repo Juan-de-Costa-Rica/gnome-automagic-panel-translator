@@ -6,7 +6,7 @@ set -e
 
 EXTENSION_UUID="automagic-panel-translator@juan-de-costa-rica"
 VERSION=$(grep -oP '"version":\s*\K\d+' metadata.json)
-ZIP_FILE="${EXTENSION_UUID}-v${VERSION}-flat.zip"
+ZIP_FILE="${EXTENSION_UUID}-v${VERSION}.zip"
 
 # Check if zip exists, build if not
 if [ ! -f "$ZIP_FILE" ]; then

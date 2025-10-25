@@ -4,7 +4,7 @@
 set -e
 
 VERSION=$(grep -oP '"version":\s*\K\d+' metadata.json)
-ZIP_FILE="automagic-panel-translator@juan-de-costa-rica-v${VERSION}-flat.zip"
+ZIP_FILE="automagic-panel-translator@juan-de-costa-rica-v${VERSION}.zip"
 
 echo "Packaging extension v${VERSION} (flat structure)..."
 
