@@ -1,7 +1,7 @@
-/* DeepL Translator Extension Styles */
+/* Automagic Panel Translator Extension Styles */
 
 /* Language toggle buttons - default state */
-.deepl-lang-button {
+.automagic-lang-button {
     padding: 5px 10px;
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -10,23 +10,23 @@
 }
 
 /* Language toggle buttons - hover state */
-.deepl-lang-button:hover {
+.automagic-lang-button:hover {
     background-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Language toggle buttons - active/selected state */
-.deepl-lang-button-active {
+.automagic-lang-button-active {
     background-color: rgba(53, 132, 228, 0.3);
     border: 1px solid rgba(53, 132, 228, 0.5);
     font-weight: bold;
 }
 
-.deepl-lang-button-active:hover {
+.automagic-lang-button-active:hover {
     background-color: rgba(53, 132, 228, 0.4);
 }
 
 /* Translate button */
-.deepl-translate-button {
+.automagic-translate-button {
     padding: 5px 15px;
     margin-left: auto;
     background-color: rgba(53, 132, 228, 0.2);
@@ -35,18 +35,18 @@
     font-weight: bold;
 }
 
-.deepl-translate-button:hover {
+.automagic-translate-button:hover {
     background-color: rgba(53, 132, 228, 0.3);
 }
 
 /* Copy button */
-.deepl-copy-button {
+.automagic-copy-button {
     padding: 5px 10px;
     background-color: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
 }
 
-.deepl-copy-button:hover {
+.automagic-copy-button:hover {
     background-color: rgba(255, 255, 255, 0.08);
 }
