@@ -3,7 +3,7 @@
 > Quick translations using DeepL API with secure key storage, smart language detection, and clipboard integration.
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-48-blue)](https://www.gnome.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green)](LICENSE)
 [![Version](https://img.shields.io/badge/version-4.0-blue)](CHANGELOG.md)
 
 <!-- TODO: Add screenshot here once extension is live -->
@@ -97,7 +97,7 @@ Bugs should be reported to the [GitHub issue tracker](https://github.com/juan-de
 
 ## License
 
-[MIT](LICENSE) © juan-de-costa-rica
+[GPL-2.0-or-later](LICENSE) © juan-de-costa-rica
 
 ---
 
