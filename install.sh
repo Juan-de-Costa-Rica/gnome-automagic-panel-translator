@@ -5,22 +5,16 @@
 set -e
 
 EXTENSION_UUID="deepl-translator@juan-de-costa-rica"
-
-echo "Building extension package..."
-
-# Create package using the flat packaging script
-./package-flat.sh
-
-# Get the zip filename
 VERSION=$(grep -oP '"version":\s*\K\d+' metadata.json)
 ZIP_FILE="${EXTENSION_UUID}-v${VERSION}-flat.zip"
 
+# Check if zip exists, build if not
 if [ ! -f "$ZIP_FILE" ]; then
-    echo "Error: Package file $ZIP_FILE not found"
-    exit 1
+    echo "Package not found. Building extension package..."
+    ./package-flat.sh
 fi
 
-echo "Installing extension using gnome-extensions install..."
+echo "Installing extension from $ZIP_FILE..."
 gnome-extensions install --force "$ZIP_FILE"
 
 echo ""
