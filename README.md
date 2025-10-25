@@ -19,14 +19,31 @@
 
 ## Installation
 
-### From GNOME Extensions (Recommended)
-*Coming soon - extension under review*
+### From GNOME Extensions
+*Extension is under review - use manual installation below for now*
 
 <!-- Once approved, uncomment:
-Visit [extensions.gnome.org](https://extensions.gnome.org/extension/...) and click "Install"
+Visit [extensions.gnome.org](https://extensions.gnome.org/extension/8668/deepl-translator/) and click "Install"
 -->
 
-### Manual Installation
+### Manual Installation (Recommended)
+
+Download and install the latest release:
+
+```bash
+# Download the extension package
+wget https://github.com/juan-de-costa-rica/gnome-deepl-translator/releases/download/v3.0/deepl-translator@juan-de-costa-rica-v3-flat.zip
+
+# Install
+gnome-extensions install deepl-translator@juan-de-costa-rica-v3-flat.zip
+```
+
+**Important:** Log out and log back in (required), then enable:
+```bash
+gnome-extensions enable deepl-translator@juan-de-costa-rica
+```
+
+### Install from Source
 
 ```bash
 git clone https://github.com/juan-de-costa-rica/gnome-deepl-translator.git
@@ -34,10 +51,7 @@ cd gnome-deepl-translator
 ./install.sh
 ```
 
-**Important:** Log out and log back in (required), then enable:
-```bash
-gnome-extensions enable deepl-translator@juan-de-costa-rica
-```
+Then log out/in and enable as shown above.
 
 ## Quick Start
 
