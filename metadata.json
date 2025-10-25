@@ -5,7 +5,8 @@
   "version": 4,
   "version-name": "4.0",
   "shell-version": [
-    "48"
+    "48",
+    "49"
   ],
   "url": "https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator",
   "settings-schema": "org.gnome.shell.extensions.automagic-panel-translator"
