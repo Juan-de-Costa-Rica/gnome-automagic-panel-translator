@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepL Translator - GNOME Extension</title>
+    <title>DeepL Translator - GNOME Shell Extension</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-pink: #ff71ce;
-            --neon-cyan: #01cdfe;
-            --neon-purple: #b967ff;
-            --neon-green: #05ffa1;
-            --dark-bg: #0d1117;
-            --darker-bg: #010409;
-            --glass-bg: rgba(255, 255, 255, 0.05);
+            --accent: #01cdfe;
+            --accent-dim: #0191b5;
+            --text: #e6edf3;
+            --text-dim: #8b949e;
+            --bg: #0d1117;
+            --bg-elevated: #161b22;
+            --border: #30363d;
         }
 
         * {
@@ -25,364 +25,239 @@
         }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--darker-bg);
-            color: #fff;
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        /* Animated gradient background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                135deg,
-                var(--darker-bg) 0%,
-                var(--dark-bg) 25%,
-                rgba(185, 103, 255, 0.1) 50%,
-                var(--dark-bg) 75%,
-                var(--darker-bg) 100%
-            );
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-            z-index: -1;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        /* Grid pattern overlay */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(1, 205, 254, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(1, 205, 254, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
-            opacity: 0.3;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 0 2rem;
         }
 
-        /* Header */
         header {
-            padding: 2rem 0;
-            position: relative;
+            padding: 3rem 0 2rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 113, 206, 0.5);
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
+        .header-content {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            text-align: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .version {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        section {
             padding: 4rem 0;
         }
 
-        .hero h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(2.5rem, 8vw, 5rem);
-            font-weight: 900;
+        section:not(:last-child) {
+            border-bottom: 1px solid var(--border);
+        }
+
+        h2 {
+            font-size: 1.8rem;
             margin-bottom: 1.5rem;
-            line-height: 1.1;
-            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple), var(--neon-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: glow 3s ease-in-out infinite;
+            font-weight: 700;
         }
 
-        @keyframes glow {
-            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 113, 206, 0.5)); }
-            50% { filter: drop-shadow(0 0 40px rgba(1, 205, 254, 0.8)); }
-        }
-
-        .hero p {
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 3rem;
-            font-weight: 300;
-        }
-
-        /* Glassmorphism button */
-        .cta-button {
-            display: inline-block;
-            padding: 1.2rem 3rem;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 2px solid var(--neon-cyan);
-            border-radius: 50px;
-            color: var(--neon-cyan);
-            text-decoration: none;
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
             font-weight: 600;
+            color: var(--accent);
+        }
+
+        p {
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            max-width: 70ch;
+        }
+
+        .intro {
+            padding: 3rem 0;
+        }
+
+        .intro p {
             font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(1, 205, 254, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(1, 205, 254, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .cta-button:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 40px rgba(1, 205, 254, 0.6);
-            border-color: var(--neon-pink);
-            color: var(--neon-pink);
-        }
-
-        /* Glass cards */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2.5rem;
-            margin: 2rem 0;
-            transition: all 0.3s ease;
-        }
-
-        .glass-card:hover {
-            border-color: var(--neon-purple);
-            box-shadow: 0 8px 32px rgba(185, 103, 255, 0.2);
-            transform: translateY(-5px);
-        }
-
-        /* Sections */
-        section {
-            padding: 6rem 0;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
-        }
-
-        section.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        section h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            text-align: center;
-            margin-bottom: 3rem;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Benefits grid */
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .benefit {
-            text-align: center;
-        }
-
-        .benefit-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            filter: drop-shadow(0 0 15px currentColor);
-        }
-
-        .benefit h3 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            color: var(--neon-pink);
-            margin-bottom: 1rem;
-        }
-
-        .benefit p {
-            color: rgba(255, 255, 255, 0.7);
             line-height: 1.8;
         }
 
-        /* Features list */
-        .features-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 3rem;
+        .install-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 0.8rem 1.8rem;
+            background: var(--bg-elevated);
+            color: var(--accent);
+            text-decoration: none;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
-        .feature-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1.5rem;
-            background: var(--glass-bg);
-            border-left: 3px solid var(--neon-cyan);
-            border-radius: 10px;
-            transition: all 0.3s ease;
+        .install-btn:hover {
+            background: rgba(1, 205, 254, 0.1);
+            transform: translateY(-1px);
         }
 
-        .feature-item:hover {
-            border-left-color: var(--neon-pink);
-            transform: translateX(10px);
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0;
         }
 
-        .feature-item::before {
+        .feature-list li {
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            position: relative;
+            color: var(--text-dim);
+        }
+
+        .feature-list li::before {
             content: '→';
-            font-size: 1.5rem;
-            color: var(--neon-cyan);
-            flex-shrink: 0;
+            position: absolute;
+            left: 0;
+            color: var(--accent);
         }
 
-        /* How it works steps */
-        .steps {
-            display: grid;
-            gap: 2rem;
-            margin-top: 3rem;
+        .code-block {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
         }
 
-        .step {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 2rem;
-            align-items: center;
+        .code-block pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text);
         }
 
-        .step-number {
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(255, 113, 206, 0.5);
+        .code-block code {
+            color: #7ee787;
         }
 
-        .step-content h3 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--neon-cyan);
+        .note {
+            background: rgba(1, 205, 254, 0.05);
+            border-left: 3px solid var(--accent);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .note p {
+            margin: 0;
+            color: var(--text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        td {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .workflow-step {
+            margin: 2rem 0;
+            padding-left: 2rem;
+            border-left: 2px solid var(--border);
+        }
+
+        .workflow-step h4 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .workflow-step p {
             margin-bottom: 0.5rem;
         }
 
-        .step-content p {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Installation section */
-        .install-code {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--neon-purple);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            font-family: 'Courier New', monospace;
-            color: var(--neon-green);
-            overflow-x: auto;
-            line-height: 1.8;
-        }
-
-        .install-code code {
-            display: block;
-            white-space: pre;
-        }
-
-        /* Footer */
         footer {
-            padding: 4rem 0 2rem;
+            padding: 3rem 0;
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.9rem;
         }
 
         .footer-links {
+            margin-top: 1rem;
             display: flex;
             justify-content: center;
             gap: 2rem;
-            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
         .footer-links a {
-            color: var(--neon-cyan);
+            color: var(--accent);
             text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .footer-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--neon-pink);
-            transition: width 0.3s ease;
-        }
-
-        .footer-links a:hover::after {
-            width: 100%;
         }
 
         .footer-links a:hover {
-            color: var(--neon-pink);
+            text-decoration: underline;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .step {
-                grid-template-columns: 1fr;
-                text-align: center;
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .step-number {
-                margin: 0 auto;
+            nav {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
     </style>
@@ -390,171 +265,232 @@
 <body>
     <header>
         <div class="container">
-            <div class="logo">DeepL Translator</div>
+            <div class="header-content">
+                <div>
+                    <h1>DeepL Translator</h1>
+                    <p class="version">v3.0 | GNOME Shell Extension</p>
+                </div>
+            </div>
+            <nav>
+                <a href="#install">Installation</a>
+                <a href="#usage">Usage</a>
+                <a href="#technical">Technical Details</a>
+                <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator">GitHub</a>
+            </nav>
         </div>
     </header>
 
     <main>
-        <!-- Hero Section -->
-        <section class="hero visible">
+        <section class="intro">
             <div class="container">
-                <h1>Translation, but instant</h1>
-                <p>Your GNOME desktop's favorite translator. Fast, secure, actually useful.</p>
-                <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator/releases/latest" class="cta-button">Download Now</a>
+                <h2>Quick translation for GNOME Shell</h2>
+                <p>
+                    Select text, click the panel icon, get a translation. That's it. Uses the DeepL API,
+                    stores your API key securely in GNOME Keyring, and auto-copies results to your clipboard.
+                </p>
+                <p>
+                    Works with 30+ languages. Auto-detects what you're translating from and figures out
+                    the right direction automatically.
+                </p>
+                <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator/releases/latest" class="install-btn">Download Latest Release</a>
             </div>
         </section>
 
-        <!-- Benefits Section -->
-        <section id="benefits">
-            <div class="container">
-                <h2>Why This Hits Different</h2>
-                <div class="benefits-grid">
-                    <div class="benefit glass-card">
-                        <div class="benefit-icon" style="color: var(--neon-pink);">🔒</div>
-                        <h3>Actually Secure</h3>
-                        <p>Your API key gets encrypted in GNOME Keyring. No plain text, no sketchy storage. Just proper security.</p>
-                    </div>
-                    <div class="benefit glass-card">
-                        <div class="benefit-icon" style="color: var(--neon-cyan);">⚡</div>
-                        <h3>Stupid Fast</h3>
-                        <p>One click to translate. That's it. Select text, hit the button, boom – translated. No opening browser tabs, no copy-paste chaos.</p>
-                    </div>
-                    <div class="benefit glass-card">
-                        <div class="benefit-icon" style="color: var(--neon-purple);">🧠</div>
-                        <h3>Kinda Smart</h3>
-                        <p>Auto-detects what language you're working with and translates the right way. Reading foreign text? Goes to English. Writing? Goes to your target language.</p>
-                    </div>
-                    <div class="benefit glass-card">
-                        <div class="benefit-icon" style="color: var(--neon-green);">📋</div>
-                        <h3>Clipboard Magic</h3>
-                        <p>Translations auto-copy to your clipboard. Translate → Paste. No extra steps. It just works.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Section -->
-        <section id="features">
-            <div class="container">
-                <h2>What You Get</h2>
-                <div class="features-list">
-                    <div class="feature-item">30+ languages supported via DeepL API</div>
-                    <div class="feature-item">Customizable language buttons in the panel</div>
-                    <div class="feature-item">Translates selected text or clipboard content</div>
-                    <div class="feature-item">Clean, minimal UI that doesn't get in your way</div>
-                    <div class="feature-item">Smart language detection (no manual switching)</div>
-                    <div class="feature-item">Free DeepL tier: 500k characters/month</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- How It Works Section -->
-        <section id="how-it-works">
-            <div class="container">
-                <h2>How It Works</h2>
-                <div class="steps">
-                    <div class="step glass-card">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>Get Your API Key</h3>
-                            <p>Sign up for a free DeepL API account. Takes like 2 minutes. You get 500,000 characters per month for free – that's a lot of translating.</p>
-                        </div>
-                    </div>
-                    <div class="step glass-card">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>Install the Extension</h3>
-                            <p>Download from GitHub Releases, run one command. Log out, log back in. Enable it. That's the whole installation.</p>
-                        </div>
-                    </div>
-                    <div class="step glass-card">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>Configure Your Preferences</h3>
-                            <p>Right-click the panel icon, paste your API key, pick your main language. Done. Extension is ready.</p>
-                        </div>
-                    </div>
-                    <div class="step glass-card">
-                        <div class="step-number">4</div>
-                        <div class="step-content">
-                            <h3>Start Translating</h3>
-                            <p>Select any text (or copy it), click the panel icon, pick a language. Translation pops up and auto-copies. Paste wherever. Repeat.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Installation Section -->
-        <section id="installation">
+        <section id="install">
             <div class="container">
                 <h2>Installation</h2>
-                <div class="glass-card">
-                    <h3 style="color: var(--neon-cyan); margin-bottom: 1rem;">Quick Install</h3>
-                    <div class="install-code">
-<code># Download the extension
+
+                <h3>Requirements</h3>
+                <ul class="feature-list">
+                    <li>GNOME Shell 48+</li>
+                    <li>DeepL API key (free tier: 500,000 characters/month)</li>
+                    <li>libsecret (usually pre-installed on GNOME systems)</li>
+                </ul>
+
+                <h3>Quick Install</h3>
+                <div class="code-block">
+<pre><code># Download the extension package
 wget https://github.com/juan-de-costa-rica/gnome-deepl-translator/releases/download/v3.0/deepl-translator@juan-de-costa-rica-v3-flat.zip
 
-# Install
+# Install it
 gnome-extensions install deepl-translator@juan-de-costa-rica-v3-flat.zip
 
-# Log out and log back in (required)
+# Log out and log back in (required for GNOME to discover the extension)
 
 # Enable the extension
-gnome-extensions enable deepl-translator@juan-de-costa-rica</code>
-                    </div>
-                    <p style="margin-top: 1.5rem; color: rgba(255, 255, 255, 0.7);">
-                        <strong>Requirements:</strong> GNOME Shell 48+, DeepL API key (free tier available), libsecret (usually pre-installed)
-                    </p>
+gnome-extensions enable deepl-translator@juan-de-costa-rica</code></pre>
                 </div>
+
+                <div class="note">
+                    <p><strong>Note:</strong> The logout/login step is required on Wayland. GNOME Shell needs to restart to discover new extensions.</p>
+                </div>
+
+                <h3>Get Your API Key</h3>
+                <p>
+                    Sign up for a free DeepL API account at <a href="https://www.deepl.com/pro-api" style="color: var(--accent);">deepl.com/pro-api</a>.
+                    Make sure you get the <strong>free API key</strong>, not the Pro tier key (they're different).
+                </p>
+                <p>
+                    Once you have the key, right-click the extension icon in your panel → Preferences → paste your API key.
+                    The extension stores it encrypted in GNOME Keyring.
+                </p>
+            </div>
+        </section>
+
+        <section id="usage">
+            <div class="container">
+                <h2>How to Use</h2>
+
+                <div class="workflow-step">
+                    <h4>1. Configure Your Languages</h4>
+                    <p>Set your main language (default: English) and pick which secondary languages you want as quick buttons in the panel menu.</p>
+                    <p>The extension will auto-detect the source language and translate in the right direction based on what it detects.</p>
+                </div>
+
+                <div class="workflow-step">
+                    <h4>2. Translate Text</h4>
+                    <p>Either select text with your mouse, or copy text to clipboard (Ctrl+C).</p>
+                    <p>Click the extension icon in the panel. If you have text selected, it uses that. Otherwise it uses whatever's on your clipboard.</p>
+                </div>
+
+                <div class="workflow-step">
+                    <h4>3. Pick Target Language</h4>
+                    <p>Click one of the language buttons in the popup menu. Translation happens instantly and appears in the popup.</p>
+                </div>
+
+                <div class="workflow-step">
+                    <h4>4. Auto-Copy</h4>
+                    <p>Translation is automatically copied to your clipboard (configurable in settings). Just paste it wherever you need it.</p>
+                </div>
+
+                <h3>Translation Logic</h3>
+                <p>The extension detects the source language automatically:</p>
+                <ul class="feature-list">
+                    <li>If source ≠ main language → translates to main language (e.g., Spanish → English)</li>
+                    <li>If source = main language → translates to selected secondary language (e.g., English → Spanish)</li>
+                </ul>
+                <p>No need to manually switch modes or directions. It just figures it out.</p>
+
+                <h3>Settings</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Setting</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>API Key</td>
+                            <td>Your DeepL API key (stored encrypted in GNOME Keyring)</td>
+                        </tr>
+                        <tr>
+                            <td>Main Language</td>
+                            <td>Your primary language (default: EN)</td>
+                        </tr>
+                        <tr>
+                            <td>Available Languages</td>
+                            <td>Comma-separated language codes that appear as buttons</td>
+                        </tr>
+                        <tr>
+                            <td>Auto-copy to Main</td>
+                            <td>Auto-copy when translating to main language</td>
+                        </tr>
+                        <tr>
+                            <td>Auto-copy to Secondary</td>
+                            <td>Auto-copy when translating to secondary language</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="technical">
+            <div class="container">
+                <h2>Technical Details</h2>
+
+                <h3>Architecture</h3>
+                <ul class="feature-list">
+                    <li><strong>extension.js</strong> - Main UI and extension logic (22KB)</li>
+                    <li><strong>translator.js</strong> - DeepL API wrapper with input validation</li>
+                    <li><strong>prefs.js</strong> - Preferences dialog</li>
+                    <li><strong>lib/keyring.js</strong> - Secure storage wrapper for libsecret</li>
+                    <li><strong>lib/languageMap.js</strong> - Shared language code/name mappings</li>
+                </ul>
+
+                <h3>Code Quality</h3>
+                <ul class="feature-list">
+                    <li>Modern async/await patterns throughout (no callback hell)</li>
+                    <li>Memory leak prevention via Gio.Cancellable for all async operations</li>
+                    <li>Input validation on all user inputs and API calls</li>
+                    <li>ESLint configuration enforced (zero errors/warnings)</li>
+                    <li>Comprehensive JSDoc documentation on all public APIs</li>
+                    <li>Proper Soup.Session cleanup with abort() on destroy</li>
+                </ul>
+
+                <h3>Security</h3>
+                <p>
+                    API keys are stored using libsecret (GNOME Keyring), which provides encryption at rest.
+                    The extension never stores the API key in plain text. If you previously used an older version,
+                    the extension will automatically migrate your key from dconf to encrypted storage on first run.
+                </p>
+
+                <h3>Dependencies</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Library</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Soup 3</td>
+                            <td>HTTP requests to DeepL API</td>
+                        </tr>
+                        <tr>
+                            <td>libsecret</td>
+                            <td>Encrypted keyring storage</td>
+                        </tr>
+                        <tr>
+                            <td>Gio, GLib, St, Clutter</td>
+                            <td>Standard GNOME platform libraries</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>API Usage</h3>
+                <p>
+                    Calls api-free.deepl.com when you click "Translate". No telemetry, no tracking.
+                    Your text is only sent to DeepL's API when you explicitly request a translation.
+                </p>
+
+                <h3>Supported Languages</h3>
+                <p>
+                    All DeepL-supported languages: EN, ES, FR, DE, IT, PT-BR, PT-PT, NL, DA, SV, NB, FI,
+                    PL, CS, SK, HU, RO, BG, SL, LT, LV, ET, UK, RU, TR, EL, JA, ZH, KO, ID, AR
+                </p>
+                <p>
+                    See <a href="https://www.deepl.com/docs-api/translate-text/" style="color: var(--accent);">DeepL's API docs</a> for the full list.
+                </p>
+
+                <h3>Development</h3>
+                <p>Repository: <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator" style="color: var(--accent);">github.com/juan-de-costa-rica/gnome-deepl-translator</a></p>
+                <p>Report issues: <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator/issues" style="color: var(--accent);">GitHub Issues</a></p>
+                <p>License: MIT</p>
             </div>
         </section>
     </main>
 
     <footer>
         <div class="container">
+            <p>DeepL Translator for GNOME Shell</p>
             <div class="footer-links">
-                <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator">GitHub</a>
+                <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator">Source Code</a>
                 <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator/releases">Releases</a>
-                <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator/issues">Report Issues</a>
-                <a href="https://www.deepl.com/pro-api">Get API Key</a>
+                <a href="https://github.com/juan-de-costa-rica/gnome-deepl-translator/blob/main/CHANGELOG.md">Changelog</a>
             </div>
-            <p style="color: rgba(255, 255, 255, 0.5);">
-                MIT License | Made for GNOME Shell
-            </p>
         </div>
     </footer>
-
-    <script>
-        // Smooth scroll reveal animation
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-
-        // Observe all sections
-        document.querySelectorAll('section').forEach(section => {
-            observer.observe(section);
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    </script>
 </body>
 </html>
