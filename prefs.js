@@ -6,7 +6,7 @@ import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/ex
 import {SecureStorage} from './lib/keyring.js';
 import {getLanguageOptions} from './lib/languageMap.js';
 
-export default class DeepLTranslatorPreferences extends ExtensionPreferences {
+export default class AutomagicPanelTranslatorPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
 
@@ -31,7 +31,7 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
         SecureStorage.retrieveApiKey().then(apiKey => {
             apiKeyRow.set_text(apiKey);
         }).catch(error => {
-            console.error('DeepL Translator: Failed to load API key from keyring:', error);
+            console.error('Automagic Panel Translator: Failed to load API key from keyring:', error);
         });
 
         // Debounced save to keyring (wait 500ms after user stops typing)
@@ -46,7 +46,7 @@ export default class DeepLTranslatorPreferences extends ExtensionPreferences {
             saveTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
                 const apiKey = apiKeyRow.get_text();
                 SecureStorage.storeApiKey(apiKey).catch(error => {
-                    console.error('DeepL Translator: Failed to save API key to keyring:', error);
+                    console.error('Automagic Panel Translator: Failed to save API key to keyring:', error);
                 });
                 saveTimeoutId = null;
                 return GLib.SOURCE_REMOVE;

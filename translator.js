@@ -67,24 +67,24 @@ export class DeepLTranslator {
     async translate(text, sourceLang, targetLang, cancellable = null) {
         // Validate inputs
         if (!this.apiKey || this.apiKey === '') {
-            console.error('DeepL Translator: API key not configured');
+            console.error('Automagic Panel Translator: API key not configured');
             throw new Error('API key not configured. Please set it in preferences.');
         }
 
         // Validate target language (source can be null for auto-detect)
         if (!targetLang || !isValidLanguage(targetLang)) {
-            console.error('DeepL Translator: Invalid target language code:', targetLang);
+            console.error('Automagic Panel Translator: Invalid target language code:', targetLang);
             throw new Error(`Invalid target language code: ${targetLang}`);
         }
 
         // Validate source language if provided
         if (sourceLang !== null && !isValidLanguage(sourceLang)) {
-            console.error('DeepL Translator: Invalid source language code:', sourceLang);
+            console.error('Automagic Panel Translator: Invalid source language code:', sourceLang);
             throw new Error(`Invalid source language code: ${sourceLang}`);
         }
 
         if (!text || text.trim() === '') {
-            console.warn('DeepL Translator: Empty text provided for translation');
+            console.warn('Automagic Panel Translator: Empty text provided for translation');
             throw new Error('No text to translate.');
         }
 
@@ -143,7 +143,7 @@ export class DeepLTranslator {
                             reject(new Error('Translation cancelled'));
                             return;
                         }
-                        console.error('DeepL Translator: Error parsing API response:', error);
+                        console.error('Automagic Panel Translator: Error parsing API response:', error);
                         reject(new Error(`Error parsing response: ${error.message}`));
                     }
                 }
@@ -159,7 +159,7 @@ export class DeepLTranslator {
      * @returns {Error} Error object with appropriate message
      */
     _createErrorFromStatus(statusCode, responseText) {
-        console.error(`DeepL Translator: API error ${statusCode}:`, responseText);
+        console.error(`Automagic Panel Translator: API error ${statusCode}:`, responseText);
 
         let message;
         switch (statusCode) {

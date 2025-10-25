@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Installation script for DeepL Translator GNOME Extension
+# Installation script for Automagic Panel Translator GNOME Extension
 
 set -e
 
-EXTENSION_UUID="deepl-translator@juan-de-costa-rica"
+EXTENSION_UUID="automagic-panel-translator@juan-de-costa-rica"
 VERSION=$(grep -oP '"version":\s*\K\d+' metadata.json)
 ZIP_FILE="${EXTENSION_UUID}-v${VERSION}-flat.zip"
 

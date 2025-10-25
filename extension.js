@@ -11,10 +11,10 @@ import {SecureStorage} from './lib/keyring.js';
 import {LANGUAGE_NAMES, SUPPORTED_LANGUAGES} from './lib/languageMap.js';
 
 /**
- * DeepL Translator Indicator
+ * Automagic Panel Translator Indicator
  *
  * GNOME Shell panel button that provides quick access to translation functionality.
- * Features auto-detection, smart language switching, and clipboard integration.
+ * Features automatic language detection, smart language switching, and clipboard integration.
  *
  * Modes:
  * - Reading mode: Foreign text → Main language (with auto-copy option)
@@ -31,7 +31,7 @@ const TranslatorIndicator = GObject.registerClass(
          * @param {Extension} extension - The extension instance
          */
         _init(extension) {
-            super._init(0.0, 'DeepL Translator', false);
+            super._init(0.0, 'Automagic Panel Translator', false);
 
             this._extension = extension;
             this._settings = extension.getSettings();
@@ -92,7 +92,7 @@ const TranslatorIndicator = GObject.registerClass(
             // Main container
             const box = new St.BoxLayout({
                 vertical: true,
-                style_class: 'deepl-translator-box',
+                style_class: 'automagic-translator-box',
                 style: 'padding: 10px; min-width: 400px; max-width: 500px;',
             });
 
@@ -103,7 +103,7 @@ const TranslatorIndicator = GObject.registerClass(
             });
 
             const titleLabel = new St.Label({
-                text: 'DeepL Translator',
+                text: 'Automagic Panel Translator',
                 style: 'font-weight: bold; font-size: 1.1em;',
                 x_expand: true,
             });
@@ -195,7 +195,7 @@ const TranslatorIndicator = GObject.registerClass(
             // Initialize languages from settings with validation
             this._mainLanguage = this._settings.get_string('main-language');
             if (!SUPPORTED_LANGUAGES.includes(this._mainLanguage)) {
-                console.warn(`DeepL Translator: Invalid main language ${this._mainLanguage}, using EN`);
+                console.warn(`Automagic Panel Translator: Invalid main language ${this._mainLanguage}, using EN`);
                 this._mainLanguage = 'EN';
                 this._settings.set_string('main-language', 'EN');
             }
@@ -237,7 +237,7 @@ const TranslatorIndicator = GObject.registerClass(
             }
 
             // Codes changed, do full rebuild
-            console.log('DeepL Translator: Rebuilding language buttons');
+            console.log('Automagic Panel Translator: Rebuilding language buttons');
 
             // Clear existing buttons
             this._langButtonsBox.destroy_all_children();
@@ -246,7 +246,7 @@ const TranslatorIndicator = GObject.registerClass(
             // Validate language codes
             const validCodes = languageCodes.filter(code => {
                 if (!SUPPORTED_LANGUAGES.includes(code)) {
-                    console.warn(`DeepL Translator: Invalid language code in settings: ${code}`);
+                    console.warn(`Automagic Panel Translator: Invalid language code in settings: ${code}`);
                     return false;
                 }
                 return true;
@@ -254,7 +254,7 @@ const TranslatorIndicator = GObject.registerClass(
 
             // If no valid codes, use default
             if (validCodes.length === 0) {
-                console.warn('DeepL Translator: No valid language codes, using default ES');
+                console.warn('Automagic Panel Translator: No valid language codes, using default ES');
                 validCodes.push('ES');
             }
 
@@ -263,7 +263,7 @@ const TranslatorIndicator = GObject.registerClass(
                 const label = LANGUAGE_NAMES[code];
                 const button = new St.Button({
                     label: label,
-                    style_class: 'deepl-lang-button',
+                    style_class: 'automagic-lang-button',
                 });
                 button.connect('clicked', () => {
                     this._currentSecondaryLang = code;
@@ -288,7 +288,7 @@ const TranslatorIndicator = GObject.registerClass(
         /**
          * Update button visual states to show selected language
          *
-         * Adds 'deepl-lang-button-active' class to selected button,
+         * Adds 'automagic-lang-button-active' class to selected button,
          * removes from others.
          *
          * @private
@@ -297,9 +297,9 @@ const TranslatorIndicator = GObject.registerClass(
         // Update button styling to show which secondary language is selected
             for (const [code, button] of Object.entries(this._langButtons)) {
                 if (code === this._currentSecondaryLang) {
-                    button.add_style_class_name('deepl-lang-button-active');
+                    button.add_style_class_name('automagic-lang-button-active');
                 } else {
-                    button.remove_style_class_name('deepl-lang-button-active');
+                    button.remove_style_class_name('automagic-lang-button-active');
                 }
             }
         }
@@ -357,7 +357,7 @@ const TranslatorIndicator = GObject.registerClass(
                 this._translator = new DeepLTranslator(apiKey);
 
             } catch (error) {
-                console.error('DeepL Translator: Failed to initialize translator:', error);
+                console.error('Automagic Panel Translator: Failed to initialize translator:', error);
                 // Create translator with empty key as fallback
                 if (this._translator) {
                     this._translator.destroy();
@@ -377,7 +377,7 @@ const TranslatorIndicator = GObject.registerClass(
                             St.ClipboardType.CLIPBOARD,
                             (clipboard, clipboardText) => {
                                 if (!clipboardText || clipboardText.trim() === '') {
-                                    console.warn('DeepL Translator: No text in clipboard');
+                                    console.warn('Automagic Panel Translator: No text in clipboard');
                                     this._resultLabel.set_text('No text found. Select or copy text first.');
                                     return;
                                 }
@@ -403,7 +403,7 @@ const TranslatorIndicator = GObject.registerClass(
          */
         async _performTranslation(sourceText) {
             if (!sourceText || sourceText.trim() === '') {
-                console.warn('DeepL Translator: Empty source text for translation');
+                console.warn('Automagic Panel Translator: Empty source text for translation');
                 this._resultLabel.set_text('No text found. Select or copy text first.');
                 return;
             }
@@ -446,12 +446,12 @@ const TranslatorIndicator = GObject.registerClass(
             } catch (error) {
             // Handle cancellation silently
                 if (error.message === 'Translation cancelled') {
-                    console.log('DeepL Translator: Translation cancelled');
+                    console.log('Automagic Panel Translator: Translation cancelled');
                     return;
                 }
 
                 // Log and display other errors
-                console.error('DeepL Translator: Translation failed:', error);
+                console.error('Automagic Panel Translator: Translation failed:', error);
                 this._resultLabel.set_text(`Error: ${error.message}`);
             }
         }
@@ -535,7 +535,7 @@ const TranslatorIndicator = GObject.registerClass(
         }
     });
 
-export default class DeepLTranslatorExtension extends Extension {
+export default class AutomagicPanelTranslatorExtension extends Extension {
     enable() {
         this._indicator = new TranslatorIndicator(this);
         Main.panel.addToStatusArea(this.uuid, this._indicator);

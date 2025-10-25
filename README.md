@@ -1,10 +1,10 @@
-# DeepL Translator for GNOME Shell
+# Automagic Panel Translator for GNOME Shell
 
 > Quick translations using DeepL API with secure key storage, smart language detection, and clipboard integration.
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-48-blue)](https://www.gnome.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0-blue)](CHANGELOG.md)
 
 <!-- TODO: Add screenshot here once extension is live -->
 
@@ -32,22 +32,22 @@ Download and install the latest release:
 
 ```bash
 # Download the extension package
-wget https://github.com/juan-de-costa-rica/gnome-deepl-translator/releases/download/v3.0/deepl-translator@juan-de-costa-rica-v3-flat.zip
+wget https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator/releases/download/v4.0/automagic-panel-translator@juan-de-costa-rica-v4-flat.zip
 
 # Install
-gnome-extensions install deepl-translator@juan-de-costa-rica-v3-flat.zip
+gnome-extensions install automagic-panel-translator@juan-de-costa-rica-v4-flat.zip
 ```
 
 **Important:** Log out and log back in (required), then enable:
 ```bash
-gnome-extensions enable deepl-translator@juan-de-costa-rica
+gnome-extensions enable automagic-panel-translator@juan-de-costa-rica
 ```
 
 ### Install from Source
 
 ```bash
-git clone https://github.com/juan-de-costa-rica/gnome-deepl-translator.git
-cd gnome-deepl-translator
+git clone https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator.git
+cd gnome-automagic-panel-translator
 ./install.sh
 ```
 
@@ -93,7 +93,7 @@ Contributions welcome! Please check [CHANGELOG.md](CHANGELOG.md) for recent chan
 
 ## Bug Reports
 
-Bugs should be reported to the [GitHub issue tracker](https://github.com/juan-de-costa-rica/gnome-deepl-translator/issues).
+Bugs should be reported to the [GitHub issue tracker](https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator/issues).
 
 ## License
 

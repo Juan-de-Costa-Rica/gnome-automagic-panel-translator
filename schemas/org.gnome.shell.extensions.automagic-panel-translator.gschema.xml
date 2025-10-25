@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.gnome.shell.extensions.deepl-translator" path="/org/gnome/shell/extensions/deepl-translator/">
+  <schema id="org.gnome.shell.extensions.automagic-panel-translator" path="/org/gnome/shell/extensions/automagic-panel-translator/">
 
     <!-- DeepL API Key -->
     <key name="api-key" type="s">

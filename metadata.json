@@ -1,12 +1,12 @@
 {
-  "uuid": "deepl-translator@juan-de-costa-rica",
-  "name": "DeepL Translator",
-  "description": "Quick translations using DeepL API with secure key storage, smart language detection, and clipboard integration.",
-  "version": 3,
-  "version-name": "3.0",
+  "uuid": "automagic-panel-translator@juan-de-costa-rica",
+  "name": "Automagic Panel Translator",
+  "description": "GNOME panel translator with automatic language detection, text selection support, and secure DeepL API integration.",
+  "version": 4,
+  "version-name": "4.0",
   "shell-version": [
     "48"
   ],
-  "url": "https://github.com/juan-de-costa-rica/gnome-deepl-translator",
-  "settings-schema": "org.gnome.shell.extensions.deepl-translator"
+  "url": "https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator",
+  "settings-schema": "org.gnome.shell.extensions.automagic-panel-translator"
 }

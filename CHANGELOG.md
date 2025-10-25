@@ -1,9 +1,25 @@
 # Changelog
 
-All notable changes to the DeepL Translator extension will be documented in this file.
+All notable changes to the Automagic Panel Translator extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [4.0] - 2025-10-25
+
+Major rebranding release with new extension identity.
+
+### Changed
+- **Rebranded from "DeepL Translator" to "Automagic Panel Translator"**
+- Updated extension UUID to `automagic-panel-translator@juan-de-costa-rica`
+- Modernized extension name to emphasize automatic language detection and panel integration
+- Updated all documentation, packaging scripts, and website with new branding
+- Maintained full backward compatibility with DeepL API integration
+
+### Technical Notes
+- This is a breaking change requiring fresh installation (new UUID)
+- Existing users of v3.0 will need to reinstall with the new UUID
+- All code quality improvements and security features from v3.0 are preserved
 
 ## [3.0] - 2025-10-24
 
