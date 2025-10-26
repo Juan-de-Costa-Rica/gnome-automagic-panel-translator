@@ -5,6 +5,9 @@
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-48-blue)](https://www.gnome.org/)
 [![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green)](LICENSE)
 [![Version](https://img.shields.io/badge/version-4.0-blue)](CHANGELOG.md)
+[![Website](https://img.shields.io/badge/website-live-blue)](https://juan-de-costa-rica.github.io/gnome-automagic-panel-translator/)
+
+**[View Website](https://juan-de-costa-rica.github.io/gnome-automagic-panel-translator/)**
 
 <!-- TODO: Add screenshot here once extension is live -->
 
@@ -94,6 +97,12 @@ Contributions welcome! Please check [CHANGELOG.md](CHANGELOG.md) for recent chan
 ## Bug Reports
 
 Bugs should be reported to the [GitHub issue tracker](https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator/issues).
+
+## Support Development
+
+If you find this extension useful, consider supporting its development:
+
+**Ethereum:** `0x55DE05974F8590ee9F4d013E1b63FcC68661136E`
 
 ## License
 

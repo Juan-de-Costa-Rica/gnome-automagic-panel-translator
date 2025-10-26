@@ -9,5 +9,8 @@
     "49"
   ],
   "url": "https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator",
-  "settings-schema": "org.gnome.shell.extensions.automagic-panel-translator"
+  "settings-schema": "org.gnome.shell.extensions.automagic-panel-translator",
+  "donations": {
+    "custom": "https://juan-de-costa-rica.github.io/gnome-automagic-panel-translator/#support"
+  }
 }
