@@ -29,19 +29,23 @@
 Visit [extensions.gnome.org](https://extensions.gnome.org/extension/8668/deepl-translator/) and click "Install"
 -->
 
-### Manual Installation (Recommended)
+### Manual Installation
 
 Download and install the latest release:
 
 ```bash
 # Download the extension package
-wget https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator/releases/download/v4.0/automagic-panel-translator@juan-de-costa-rica-v4.zip
+wget https://github.com/juan-de-costa-rica/gnome-automagic-panel-translator/releases/latest/download/automagic-panel-translator@juan-de-costa-rica.zip
 
-# Install
-gnome-extensions install automagic-panel-translator@juan-de-costa-rica-v4.zip
+# Install (--force overwrites any existing version)
+gnome-extensions install --force automagic-panel-translator@juan-de-costa-rica.zip
 ```
 
-**Important:** Log out and log back in (required), then enable:
+**Restart GNOME Shell:**
+- **Wayland** (GNOME 49, default): Log out and log back in
+- **X11** (older systems): Press `Alt+F2`, type `r`, press Enter
+
+**Enable the extension:**
 ```bash
 gnome-extensions enable automagic-panel-translator@juan-de-costa-rica
 ```
@@ -54,7 +58,19 @@ cd gnome-automagic-panel-translator
 ./install.sh
 ```
 
-Then log out/in and enable as shown above.
+Restart GNOME Shell and enable the extension as described above.
+
+### Developer Testing
+
+For development and testing without disrupting your session:
+
+```bash
+# GNOME 48 and earlier
+dbus-run-session -- gnome-shell --nested --wayland
+
+# GNOME 49 and later
+dbus-run-session -- gnome-shell --devkit
+```
 
 ## Quick Start
 
