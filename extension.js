@@ -389,12 +389,12 @@ const TranslatorIndicator = GObject.registerClass(
 
                     this._resultLabel.set_text(finalResult.text);
                     this._lastTranslation = finalResult.text;
-                    this._autoCopyToClipboard(finalResult.text, this._mainLanguage);
+                    this._autoCopyToClipboard(finalResult.text);
                 } else {
                 // Detected main language -> use translation to secondary (writing mode)
                     this._resultLabel.set_text(result.text);
                     this._lastTranslation = result.text;
-                    this._autoCopyToClipboard(result.text, this._currentSecondaryLang);
+                    this._autoCopyToClipboard(result.text);
                 }
             } catch (error) {
             // Handle cancellation silently
@@ -422,30 +422,19 @@ const TranslatorIndicator = GObject.registerClass(
          * @param {string} targetLanguage - Language code of the translation
          * @private
          */
-        _autoCopyToClipboard(text, targetLanguage) {
-        // Check settings to determine if we should auto-copy based on target language
-            let shouldCopy = false;
-
-            if (targetLanguage === this._mainLanguage) {
-            // Translating to primary language (reading mode)
-                shouldCopy = this._settings.get_boolean('auto-copy-to-primary');
-            } else {
-            // Translating to secondary language (writing mode)
-                shouldCopy = this._settings.get_boolean('auto-copy-to-secondary');
-            }
+        _autoCopyToClipboard(text) {
+            const shouldCopy = this._settings.get_boolean('auto-copy-to-primary');
 
             if (shouldCopy) {
-            // Copy translation to clipboard
+                // Copy translation to clipboard
                 St.Clipboard.get_default().set_text(
                     St.ClipboardType.CLIPBOARD,
                     text
                 );
 
                 // Visual feedback - show "✓ Copied!" indicator
-                // Will stay visible until menu closes (handled by open-state-changed signal)
                 this._copiedIndicator.visible = true;
             } else {
-            // Don't copy, and don't show the copied indicator
                 this._copiedIndicator.visible = false;
             }
         }
