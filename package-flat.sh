@@ -22,10 +22,9 @@ cp stylesheet.css "${TMP_DIR}/"
 mkdir -p "${TMP_DIR}/lib"
 cp lib/*.js "${TMP_DIR}/lib/"
 
-# Copy and compile schemas
+# Copy schemas
 mkdir -p "${TMP_DIR}/schemas"
 cp schemas/*.xml "${TMP_DIR}/schemas/"
-glib-compile-schemas "${TMP_DIR}/schemas/"
 
 # Create zip file from inside temp directory (files at root)
 cd "${TMP_DIR}"
