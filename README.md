@@ -1,6 +1,6 @@
 # Automagic Panel Translator for GNOME Shell
 
-> Quick translations using DeepL API with secure key storage, smart language detection, and clipboard integration.
+> Quick translations using DeepL API with secure key storage, smart language detection, and text selection.
 
 [![GNOME Shell](https://img.shields.io/badge/GNOME%20Shell-48-blue)](https://www.gnome.org/)
 [![License](https://img.shields.io/badge/license-GPL--2.0--or--later-green)](LICENSE)
@@ -16,7 +16,6 @@
 - **Simple** - Select text, click panel icon, done
 - **Secure** - API keys encrypted with GNOME Keyring
 - **Smart** - Auto-detects language and translation direction
-- **Integrated** - Auto-copy results, no window switching
 - **30+ Languages** - All DeepL-supported languages
 - **Customizable** - Choose which language buttons appear
 
@@ -84,9 +83,9 @@ dbus-run-session -- gnome-shell --devkit
 
 The extension translates text with a single click:
 
-1. **Select or copy text** - Selected text (highlighted) takes priority; clipboard (Ctrl+C) is used if nothing is selected
-2. **Click the panel icon** - Translation appears instantly in the popup
-3. **Auto-copy** - Translation is automatically copied to clipboard (configurable in settings)
+1. **Select text** - Highlight the text you want to translate.
+2. **Click the panel icon** - Translation appears instantly in the popup.
+3. **Auto-copy** - Translation is automatically copied to clipboard (configurable in settings).
 
 ### Translation Logic
 
