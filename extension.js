@@ -14,7 +14,7 @@ import {LANGUAGE_NAMES, SUPPORTED_LANGUAGES} from './lib/languageMap.js';
  * Automagic Panel Translator Indicator
  *
  * GNOME Shell panel button that provides quick access to translation functionality.
- * Features automatic language detection, smart language switching, and clipboard integration.
+ * Features automatic language detection, and smart language switching.
  *
  * Modes:
  * - Reading mode: Foreign text → Main language (with auto-copy option)
