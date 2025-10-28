@@ -54,16 +54,14 @@ const TranslatorIndicator = GObject.registerClass(
 
             // No longer need to set focus since we removed the text entry
 
-            // Auto-translate on menu open if clipboard has new text
+            // Translate on menu open
             this._menuOpenStateChangedId = this.menu.connect('open-state-changed', (menu, isOpen) => {
                 if (isOpen) {
-                // Menu is opening - check for new text and auto-translate
-                    this._checkAndAutoTranslate();
+                    this._doTranslation();
                 } else {
-                // Menu is closing - clear the result and hide copied indicator
+                    // Menu is closing - clear the result and hide copied indicator
                     this._resultLabel.set_text('');
                     this._copiedIndicator.visible = false;
-                // Don't clear _lastSourceText - we need it to compare on next open
                 }
             });
 
@@ -269,8 +267,10 @@ const TranslatorIndicator = GObject.registerClass(
                     this._currentSecondaryLang = code;
                     this._settings.set_string('last-used-language', code);
                     this._updateButtonStates();
-                    // Trigger translation immediately when language button is clicked
-                    this._doTranslation();
+                    // Only re-translate if we have source text already
+                    if (this._lastSourceText && this._lastSourceText.trim() !== '') {
+                        this._performTranslation(this._lastSourceText);
+                    }
                 });
                 this._langButtons[code] = button;
                 this._langButtonsBox.add_child(button);
@@ -304,43 +304,7 @@ const TranslatorIndicator = GObject.registerClass(
             }
         }
 
-        /**
-         * Check clipboard and auto-translate if text is new
-         *
-         * Tries PRIMARY selection first (selected text), falls back to CLIPBOARD.
-         * Only translates if text differs from last translation to avoid redundant API calls.
-         *
-         * @private
-         */
-        _checkAndAutoTranslate() {
-        // Try PRIMARY selection first (selected text), fall back to CLIPBOARD
-            St.Clipboard.get_default().get_text(
-                St.ClipboardType.PRIMARY,
-                (clipboard, primaryText) => {
-                // If PRIMARY is empty, try CLIPBOARD
-                    if (!primaryText || primaryText.trim() === '') {
-                        St.Clipboard.get_default().get_text(
-                            St.ClipboardType.CLIPBOARD,
-                            (clipboard, clipboardText) => {
-                                this._autoTranslateIfNew(clipboardText);
-                            }
-                        );
-                        return;
-                    }
-                    this._autoTranslateIfNew(primaryText);
-                }
-            );
-        }
 
-        _autoTranslateIfNew(text) {
-        // Only auto-translate if:
-        // 1. Text is not empty
-        // 2. Text is different from what we last translated
-            if (text && text.trim() !== '' && text.trim() !== this._lastSourceText) {
-                this._performTranslation(text.trim());
-            }
-        // Otherwise, do nothing (show previous translation or empty state)
-        }
 
         async _initializeTranslator() {
             try {
@@ -367,23 +331,12 @@ const TranslatorIndicator = GObject.registerClass(
         }
 
         _doTranslation() {
-        // Try PRIMARY selection first (selected text), fall back to CLIPBOARD
+        // Try PRIMARY selection first (selected text)
             St.Clipboard.get_default().get_text(
                 St.ClipboardType.PRIMARY,
                 (clipboard, primaryText) => {
-                // If PRIMARY is empty, try CLIPBOARD
                     if (!primaryText || primaryText.trim() === '') {
-                        St.Clipboard.get_default().get_text(
-                            St.ClipboardType.CLIPBOARD,
-                            (clipboard, clipboardText) => {
-                                if (!clipboardText || clipboardText.trim() === '') {
-                                    console.warn('Automagic Panel Translator: No text in clipboard');
-                                    this._resultLabel.set_text('No text found. Select or copy text first.');
-                                    return;
-                                }
-                                this._performTranslation(clipboardText);
-                            }
-                        );
+                        this._resultLabel.set_text('Select text to translate.');
                         return;
                     }
                     this._performTranslation(primaryText);

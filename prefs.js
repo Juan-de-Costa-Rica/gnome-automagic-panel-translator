@@ -180,43 +180,21 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
         // How it works explanation
         const explanationRow = new Adw.ActionRow({
             title: 'How auto-detection works:',
-            subtitle: 'Extension auto-detects clipboard language. If not your main language → translates to main. If it is your main language → translates to selected button language.',
+            subtitle: 'The extension auto-detects the language of the selected text. If it is not your main language, it translates to your main language. If it is your main language, it translates to the selected secondary language.',
         });
         langGroup.add(explanationRow);
 
-        // Clipboard Behavior group
-        const clipboardGroup = new Adw.PreferencesGroup({
-            title: 'Clipboard Behavior',
-            description: 'Control when translations are automatically copied to clipboard',
+        // Auto-copy toggle
+        const autoCopyRow = new Adw.SwitchRow({
+            title: 'Automatically copy translation to clipboard',
+            subtitle: 'Copy the translated text to the clipboard automatically.',
         });
-        page.add(clipboardGroup);
-
-        // Auto-copy to primary language toggle
-        const autoCopyPrimaryRow = new Adw.SwitchRow({
-            title: 'Auto-copy when translating to main language',
-            subtitle: 'Copy translation to clipboard when translating to your main language (reading mode)',
-        });
-        clipboardGroup.add(autoCopyPrimaryRow);
+        langGroup.add(autoCopyRow);
 
         // Bind to settings
         settings.bind(
             'auto-copy-to-primary',
-            autoCopyPrimaryRow,
-            'active',
-            Gio.SettingsBindFlags.DEFAULT
-        );
-
-        // Auto-copy to secondary language toggle
-        const autoCopySecondaryRow = new Adw.SwitchRow({
-            title: 'Auto-copy when translating to secondary language',
-            subtitle: 'Copy translation to clipboard when translating to a secondary language (writing mode)',
-        });
-        clipboardGroup.add(autoCopySecondaryRow);
-
-        // Bind to settings
-        settings.bind(
-            'auto-copy-to-secondary',
-            autoCopySecondaryRow,
+            autoCopyRow,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
