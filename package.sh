@@ -25,10 +25,6 @@ cp stylesheet.css "${PACKAGE_DIR}/"
 mkdir -p "${PACKAGE_DIR}/lib"
 cp lib/*.js "${PACKAGE_DIR}/lib/"
 
-# Copy and compile schemas
-mkdir -p "${PACKAGE_DIR}/schemas"
-cp schemas/*.xml "${PACKAGE_DIR}/schemas/"
-glib-compile-schemas "${PACKAGE_DIR}/schemas/"
 
 # Create zip file
 cd "${TMP_DIR}"
