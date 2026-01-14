@@ -5,6 +5,13 @@ All notable changes to the Automagic Panel Translator extension will be document
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-01-13
+
+### Changed
+- **EGO Compliance:** Added explicit 'Translate Selection' button to comply with GNOME privacy guidelines (no automatic network requests on menu open).
+- **UI:** Added a source text preview to the popup so users can verify text before sending to DeepL.
+- **Packaging:** Removed compiled schemas from the zip package.
+
 ## [1.0.0] - 2026-01-13
 
 Initial public release of the rebranded and modernized extension.
