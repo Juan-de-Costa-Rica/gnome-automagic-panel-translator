@@ -331,7 +331,8 @@ const TranslatorIndicator = GObject.registerClass(
         }
 
         _doTranslation() {
-        // Try PRIMARY selection first (selected text)
+            // STRICT: Only use PRIMARY selection (highlighted text).
+            // Do NOT fallback to CLIPBOARD (Ctrl+C) to prevent accidental translation of sensitive clipboard data.
             St.Clipboard.get_default().get_text(
                 St.ClipboardType.PRIMARY,
                 (clipboard, primaryText) => {
