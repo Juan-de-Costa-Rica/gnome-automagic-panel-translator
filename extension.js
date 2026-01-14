@@ -1,4 +1,5 @@
 import St from 'gi://St';
+import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
@@ -178,10 +179,22 @@ const TranslatorIndicator = GObject.registerClass(
                 text: '',
                 style: 'background-color: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 4px; min-height: 60px;',
                 x_expand: true,
+                reactive: true, // Make it clickable
             });
             this._resultLabel.clutter_text.line_wrap = true;
             this._resultLabel.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
             this._resultLabel.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
+
+            // Add click handler for manual copy
+            this._resultLabel.connect('button-press-event', (actor, event) => {
+                const text = actor.get_text();
+                // Only copy if we have a valid translation and it matches the clicked text
+                if (this._lastTranslation && this._lastTranslation === text) {
+                    this._manualCopyToClipboard(text);
+                    return Clutter.EVENT_STOP;
+                }
+                return Clutter.EVENT_PROPAGATE;
+            });
 
             scrollBox.add_child(this._resultLabel);
             scrollView.set_child(scrollBox);
@@ -207,6 +220,7 @@ const TranslatorIndicator = GObject.registerClass(
                 this._rebuildLanguageButtons();
             });
         }
+
 
         /**
          * Rebuild language buttons from settings
@@ -411,6 +425,22 @@ const TranslatorIndicator = GObject.registerClass(
         }
 
         /**
+         * Copy text to clipboard and show visual feedback
+         * @param {string} text - Text to copy
+         * @private
+         */
+        _manualCopyToClipboard(text) {
+            // Copy translation to clipboard
+            St.Clipboard.get_default().set_text(
+                St.ClipboardType.CLIPBOARD,
+                text
+            );
+
+            // Visual feedback - show "✓ Copied!" indicator
+            this._copiedIndicator.visible = true;
+        }
+
+        /**
          * Auto-copy translation to clipboard based on settings
          *
          * Checks user preferences:
@@ -433,14 +463,7 @@ const TranslatorIndicator = GObject.registerClass(
             }
 
             if (shouldCopy) {
-                // Copy translation to clipboard
-                St.Clipboard.get_default().set_text(
-                    St.ClipboardType.CLIPBOARD,
-                    text
-                );
-
-                // Visual feedback - show "✓ Copied!" indicator
-                this._copiedIndicator.visible = true;
+                this._manualCopyToClipboard(text);
             } else {
                 this._copiedIndicator.visible = false;
             }
