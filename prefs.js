@@ -218,5 +218,29 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
+
+        // Keyboard Shortcuts group
+        const shortcutGroup = new Adw.PreferencesGroup({
+            title: _('Keyboard Shortcuts'),
+            description: _('Global shortcuts to control the extension'),
+        });
+        page.add(shortcutGroup);
+
+        const translateShortcutRow = new Adw.ActionRow({
+            title: _('Translate Selection'),
+            subtitle: _('Press this key combination to translate the current selection and open the popup.'),
+        });
+        shortcutGroup.add(translateShortcutRow);
+
+        const shortcutLabel = new Gtk.ShortcutLabel({
+            accelerator: settings.get_strv('translate-shortcut')[0] || '<Super>t',
+            valign: Gtk.Align.CENTER,
+        });
+        translateShortcutRow.add_suffix(shortcutLabel);
+
+        // Update label when setting changes
+        settings.connect('changed::translate-shortcut', () => {
+            shortcutLabel.set_accelerator(settings.get_strv('translate-shortcut')[0] || '<Super>t');
+        });
     }
 }

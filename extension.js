@@ -2,7 +2,10 @@ import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Shell from 'gi://Shell';
+import Meta from 'gi://Meta';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
@@ -53,6 +56,9 @@ const TranslatorIndicator = GObject.registerClass(
 
             // Initialize translator with API key from keyring
             this._initializeTranslator();
+
+            // Set up keyboard shortcut
+            this._setupKeybinding();
 
             // No longer need to set focus since we removed the text entry
 
@@ -350,9 +356,45 @@ const TranslatorIndicator = GObject.registerClass(
                     button.remove_style_class_name('automagic-lang-button-active');
                 }
             }
+            this._updateButtonStates();
         }
 
+        /**
+         * Set up the global keyboard shortcut
+         * @private
+         */
+        _setupKeybinding() {
+            Main.wm.addKeybinding(
+                'translate-shortcut',
+                this._settings,
+                Meta.KeyBindingFlags.NONE,
+                Shell.ActionMode.ALL,
+                () => {
+                    this._onShortcutTriggered();
+                }
+            );
+        }
 
+        /**
+         * Handle keyboard shortcut trigger
+         * (EGO Compliance: User initiated action)
+         * @private
+         */
+        _onShortcutTriggered() {
+            // 1. Open the menu if not already open
+            if (!this.menu.isOpen) {
+                this.menu.open(true);
+            }
+
+            // 2. Perform translation after a tiny delay to ensure selection is updated
+            // and the menu is ready
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+                if (this._currentSelection && this._currentSelection.trim() !== '') {
+                    this._performTranslation(this._currentSelection);
+                }
+                return GLib.SOURCE_REMOVE;
+            });
+        }
 
         async _initializeTranslator() {
             try {
@@ -517,6 +559,9 @@ const TranslatorIndicator = GObject.registerClass(
          * and destroys translator instance.
          */
         destroy() {
+            // Unregister keyboard shortcut
+            Main.wm.removeKeybinding('translate-shortcut');
+
             if (this._settingsChangedId) {
                 this._settings.disconnect(this._settingsChangedId);
                 this._settingsChangedId = null;

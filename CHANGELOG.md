@@ -5,6 +5,12 @@ All notable changes to the Automagic Panel Translator extension will be document
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-13
+
+### Added
+- **Global Keyboard Shortcut:** Added support for a global shortcut (Default: `Super+T`) to translate the current selection and open the popup instantly.
+- **Shortcut Settings:** New section in preferences to view the configured keyboard shortcut.
+
 ## [1.1.0] - 2026-01-13
 
 ### Changed

@@ -43,5 +43,12 @@
       <description>Automatically copy the translated text to the clipboard when translating to a secondary language.</description>
     </key>
 
+    <!-- Keyboard Shortcut -->
+    <key name="translate-shortcut" type="as">
+      <default>['&lt;Super&gt;t']</default>
+      <summary>Translate selection shortcut</summary>
+      <description>Keyboard shortcut to translate the current selection and open the popup.</description>
+    </key>
+
   </schema>
 </schemalist>
