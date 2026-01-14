@@ -6,7 +6,7 @@ import GObject from 'gi://GObject';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {DeepLTranslator} from './translator.js';
 import {SecureStorage} from './lib/keyring.js';
 import {LANGUAGE_NAMES, SUPPORTED_LANGUAGES} from './lib/languageMap.js';
@@ -95,14 +95,13 @@ const TranslatorIndicator = GObject.registerClass(
                 style: 'padding: 10px; min-width: 400px; max-width: 500px;',
             });
 
-            // Header with title and settings button
             const headerBox = new St.BoxLayout({
                 vertical: false,
                 style: 'margin-bottom: 10px;',
             });
 
             const titleLabel = new St.Label({
-                text: 'Automagic Panel Translator',
+                text: _('Automagic Panel Translator'),
                 style_class: 'automagic-header-title',
                 x_expand: true,
                 y_align: Clutter.ActorAlign.CENTER,
@@ -129,7 +128,7 @@ const TranslatorIndicator = GObject.registerClass(
 
             // Secondary language selector label
             const secondaryLangLabel = new St.Label({
-                text: 'Secondary Language:',
+                text: _('Secondary Language:'),
                 style: 'font-weight: bold; margin-bottom: 5px;',
             });
             box.add_child(secondaryLangLabel);
@@ -149,14 +148,14 @@ const TranslatorIndicator = GObject.registerClass(
             });
 
             const resultLabel = new St.Label({
-                text: 'Translation:',
+                text: _('Translation:'),
                 style: 'font-weight: bold;',
             });
             resultHeaderBox.add_child(resultLabel);
 
             // Copied indicator (initially hidden)
             this._copiedIndicator = new St.Label({
-                text: '  ✓ Copied!',
+                text: _('  ✓ Copied!'),
                 style: 'color: #4CAF50; font-weight: bold; margin-left: 10px;',
                 visible: false,
             });
@@ -350,83 +349,82 @@ const TranslatorIndicator = GObject.registerClass(
         _doTranslation() {
             // STRICT: Only use PRIMARY selection (highlighted text).
             // Do NOT fallback to CLIPBOARD (Ctrl+C) to prevent accidental translation of sensitive clipboard data.
-            St.Clipboard.get_default().get_text(
-                St.ClipboardType.PRIMARY,
-                (clipboard, primaryText) => {
-                    if (!primaryText || primaryText.trim() === '') {
-                        this._resultLabel.set_text('Select text to translate.');
-                        return;
+                        St.Clipboard.get_default().get_text(
+                            St.ClipboardType.PRIMARY,
+                            (clipboard, primaryText) => {
+                                if (!primaryText || primaryText.trim() === '') {
+                                    this._resultLabel.set_text(_('Select text to translate.'));
+                                    return;
+                                }
+                                this._performTranslation(primaryText);
+                            }
+                        );
                     }
-                    this._performTranslation(primaryText);
-                }
-            );
-        }
-
-        /**
-         * Perform translation with smart language detection
-         *
-         * Smart logic:
-         * - If detected language ≠ main language → translate to main (reading mode)
-         * - If detected language = main language → translate to secondary (writing mode)
-         *
-         * @param {string} sourceText - Text to translate
-         * @private
-         */
-        async _performTranslation(sourceText) {
-            if (!sourceText || sourceText.trim() === '') {
-                console.warn('Automagic Panel Translator: Empty source text for translation');
-                this._resultLabel.set_text('No text found. Select or copy text first.');
-                return;
-            }
-
-            // Store source text for comparison on next menu open
-            this._lastSourceText = sourceText.trim();
-
-            // Show loading state
-            this._resultLabel.set_text('Translating...');
-
-            try {
-            // First translation: auto-detect source, translate to secondary language
-                const result = await this._translator.translate(
-                    sourceText,
-                    null, // Auto-detect source language
-                    this._currentSecondaryLang,
-                    this._cancellable
-                );
-
-                // Smart logic: if detected language is NOT our main language,
-                // re-translate to main language (reading mode)
-                if (result.detectedSourceLang && result.detectedSourceLang !== this._mainLanguage) {
-                // Detected foreign language -> translate to main language
-                    const finalResult = await this._translator.translate(
-                        sourceText,
-                        null,
-                        this._mainLanguage,
-                        this._cancellable
-                    );
-
-                    this._resultLabel.set_text(finalResult.text);
-                    this._lastTranslation = finalResult.text;
-                    this._autoCopyToClipboard(finalResult.text, true);
-                } else {
-                // Detected main language -> use translation to secondary (writing mode)
-                    this._resultLabel.set_text(result.text);
-                    this._lastTranslation = result.text;
-                    this._autoCopyToClipboard(result.text, false);
-                }
-            } catch (error) {
-            // Handle cancellation silently
-                if (error.message === 'Translation cancelled') {
-                    // console.log('Automagic Panel Translator: Translation cancelled');
-                    return;
-                }
-
-                // Log and display other errors
-                console.error('Automagic Panel Translator: Translation failed:', error);
-                this._resultLabel.set_text(`Error: ${error.message}`);
-            }
-        }
-
+            
+                    /**
+                     * Perform translation with smart language detection
+                     * 
+                     * Smart logic:
+                     * - If detected language ≠ main language → translate to main (reading mode)
+                     * - If detected language = main language → translate to secondary (writing mode)
+                     *
+                     * @param {string} sourceText - Text to translate
+                     * @private
+                     */
+                    async _performTranslation(sourceText) {
+                        if (!sourceText || sourceText.trim() === '') {
+                            // console.warn('Automagic Panel Translator: Empty source text for translation');
+                            this._resultLabel.set_text(_('No text found. Select or copy text first.'));
+                            return;
+                        }
+            
+                        // Store source text for comparison on next menu open
+                        this._lastSourceText = sourceText.trim();
+            
+                        // Show loading state
+                        this._resultLabel.set_text(_('Translating...'));
+            
+                        try {
+                        // First translation: auto-detect source, translate to secondary language
+                            const result = await this._translator.translate(
+                                sourceText,
+                                null, // Auto-detect source language
+                                this._currentSecondaryLang,
+                                this._cancellable
+                            );
+            
+                            // Smart logic: if detected language is NOT our main language,
+                            // re-translate to main language (reading mode)
+                            if (result.detectedSourceLang && result.detectedSourceLang !== this._mainLanguage) {
+                            // Detected foreign language -> translate to main language
+                                const finalResult = await this._translator.translate(
+                                    sourceText,
+                                    null,
+                                    this._mainLanguage,
+                                    this._cancellable
+                                );
+            
+                                this._resultLabel.set_text(finalResult.text);
+                                this._lastTranslation = finalResult.text;
+                                this._autoCopyToClipboard(finalResult.text, true);
+                            } else {
+                            // Detected main language -> use translation to secondary (writing mode)
+                                this._resultLabel.set_text(result.text);
+                                this._lastTranslation = result.text;
+                                this._autoCopyToClipboard(result.text, false);
+                            }
+                        } catch (error) {
+                        // Handle cancellation silently
+                            if (error.message === 'Translation cancelled') {
+                                // console.log('Automagic Panel Translator: Translation cancelled');
+                                return;
+                            }
+            
+                            // Log and display other errors
+                            // console.error('Automagic Panel Translator: Translation failed:', error);
+                            this._resultLabel.set_text(_('Error: %s').format(error.message));
+                        }
+                    }
         /**
          * Copy text to clipboard and show visual feedback
          * @param {string} text - Text to copy

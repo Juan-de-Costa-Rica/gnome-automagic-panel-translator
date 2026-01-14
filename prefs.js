@@ -2,7 +2,7 @@ import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {SecureStorage} from './lib/keyring.js';
 import {getLanguageOptions} from './lib/languageMap.js';
 
@@ -16,14 +16,14 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
 
         // API Configuration group
         const apiGroup = new Adw.PreferencesGroup({
-            title: 'API Configuration',
-            description: 'Configure your DeepL API settings',
+            title: _('API Configuration'),
+            description: _('Configure your DeepL API settings'),
         });
         page.add(apiGroup);
 
         // API Key row - stored securely in GNOME Keyring
         const apiKeyRow = new Adw.PasswordEntryRow({
-            title: 'DeepL API Key',
+            title: _('DeepL API Key'),
         });
         apiGroup.add(apiKeyRow);
 
@@ -31,7 +31,7 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
         SecureStorage.retrieveApiKey().then(apiKey => {
             apiKeyRow.set_text(apiKey);
         }).catch(error => {
-            console.error('Automagic Panel Translator: Failed to load API key from keyring:', error);
+            // console.error('Automagic Panel Translator: Failed to load API key from keyring:', error);
         });
 
         // Debounced save to keyring (wait 500ms after user stops typing)
@@ -46,7 +46,7 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
             saveTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
                 const apiKey = apiKeyRow.get_text();
                 SecureStorage.storeApiKey(apiKey).catch(error => {
-                    console.error('Automagic Panel Translator: Failed to save API key to keyring:', error);
+                    // console.error('Automagic Panel Translator: Failed to save API key to keyring:', error);
                 });
                 saveTimeoutId = null;
                 return GLib.SOURCE_REMOVE;
@@ -55,15 +55,15 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
 
         // Help text for API key
         const apiHelpRow = new Adw.ActionRow({
-            title: 'Get your free API key at:',
+            title: _('Get your free API key at:'),
             subtitle: 'https://www.deepl.com/pro-api',
         });
         apiGroup.add(apiHelpRow);
 
         // Language Preferences group
         const langGroup = new Adw.PreferencesGroup({
-            title: 'Language Settings',
-            description: 'Configure your main and secondary languages',
+            title: _('Language Settings'),
+            description: _('Configure your main and secondary languages'),
         });
         page.add(langGroup);
 
@@ -112,8 +112,8 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
 
         // Main language dropdown
         const mainLangRow = new Adw.ComboRow({
-            title: 'Main Language',
-            subtitle: 'Your primary language for translations',
+            title: _('Main Language'),
+            subtitle: _('Your primary language for translations'),
             model: languageListMain,
         });
 
@@ -134,8 +134,8 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
 
         // Secondary languages label
         const secondaryLangLabel = new Adw.ActionRow({
-            title: 'Secondary Languages',
-            subtitle: 'Choose up to 3 languages to translate to (leave as "None" if not needed)',
+            title: _('Secondary Languages'),
+            subtitle: _('Choose up to 3 languages to translate to (leave as "None" if not needed)'),
         });
         langGroup.add(secondaryLangLabel);
 
@@ -153,7 +153,7 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
         // Create 3 language selector dropdowns
         for (let i = 0; i < 3; i++) {
             const langRow = new Adw.ComboRow({
-                title: `Language Slot ${i + 1}`,
+                title: _('Language Slot %d').format(i + 1),
                 model: languageListSecondary[i],
             });
 
@@ -179,22 +179,22 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
 
         // How it works explanation
         const explanationRow = new Adw.ActionRow({
-            title: 'How auto-detection works:',
-            subtitle: 'The extension auto-detects the language of the selected text. If it is not your main language, it translates to your main language. If it is your main language, it translates to the selected secondary language.',
+            title: _('How auto-detection works:'),
+            subtitle: _('The extension auto-detects the language of the selected text. If it is not your main language, it translates to your main language. If it is your main language, it translates to the selected secondary language.'),
         });
         langGroup.add(explanationRow);
 
         // Auto-copy toggles group
         const autoCopyGroup = new Adw.PreferencesGroup({
-            title: 'Auto-copy Settings',
-            description: 'Configure when to automatically copy translations to clipboard',
+            title: _('Auto-copy Settings'),
+            description: _('Configure when to automatically copy translations to clipboard'),
         });
         page.add(autoCopyGroup);
 
         // Auto-copy to Main Language
         const autoCopyMainRow = new Adw.SwitchRow({
-            title: 'Copy when translating to Main Language',
-            subtitle: 'Auto-copy when translating foreign text to your main language.',
+            title: _('Copy when translating to Main Language'),
+            subtitle: _('Auto-copy when translating foreign text to your main language.'),
         });
         autoCopyGroup.add(autoCopyMainRow);
 
@@ -207,8 +207,8 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
 
         // Auto-copy to Secondary Language
         const autoCopySecondaryRow = new Adw.SwitchRow({
-            title: 'Copy when translating to Secondary Language',
-            subtitle: 'Auto-copy when translating from main language to a foreign language.',
+            title: _('Copy when translating to Secondary Language'),
+            subtitle: _('Auto-copy when translating from main language to a foreign language.'),
         });
         autoCopyGroup.add(autoCopySecondaryRow);
 
