@@ -33,8 +33,14 @@
     <!-- Auto-copy to clipboard -->
     <key name="auto-copy-to-primary" type="b">
       <default>false</default>
-      <summary>Auto-copy translation to clipboard</summary>
-      <description>Automatically copy the translated text to the clipboard.</description>
+      <summary>Auto-copy translation to main language</summary>
+      <description>Automatically copy the translated text to the clipboard when translating to the main language.</description>
+    </key>
+
+    <key name="auto-copy-to-secondary" type="b">
+      <default>false</default>
+      <summary>Auto-copy translation to secondary language</summary>
+      <description>Automatically copy the translated text to the clipboard when translating to a secondary language.</description>
     </key>
 
   </schema>

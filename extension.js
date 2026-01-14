@@ -390,12 +390,12 @@ const TranslatorIndicator = GObject.registerClass(
 
                     this._resultLabel.set_text(finalResult.text);
                     this._lastTranslation = finalResult.text;
-                    this._autoCopyToClipboard(finalResult.text);
+                    this._autoCopyToClipboard(finalResult.text, true);
                 } else {
                 // Detected main language -> use translation to secondary (writing mode)
                     this._resultLabel.set_text(result.text);
                     this._lastTranslation = result.text;
-                    this._autoCopyToClipboard(result.text);
+                    this._autoCopyToClipboard(result.text, false);
                 }
             } catch (error) {
             // Handle cancellation silently
@@ -420,11 +420,17 @@ const TranslatorIndicator = GObject.registerClass(
          * Shows "✓ Copied!" indicator when copy occurs.
          *
          * @param {string} text - Translated text to copy
-         * @param {string} targetLanguage - Language code of the translation
+         * @param {boolean} isMainLanguage - Whether the target language is the main language
          * @private
          */
-        _autoCopyToClipboard(text) {
-            const shouldCopy = this._settings.get_boolean('auto-copy-to-primary');
+        _autoCopyToClipboard(text, isMainLanguage) {
+            let shouldCopy = false;
+
+            if (isMainLanguage) {
+                shouldCopy = this._settings.get_boolean('auto-copy-to-primary');
+            } else {
+                shouldCopy = this._settings.get_boolean('auto-copy-to-secondary');
+            }
 
             if (shouldCopy) {
                 // Copy translation to clipboard

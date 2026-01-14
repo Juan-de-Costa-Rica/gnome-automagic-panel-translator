@@ -184,17 +184,37 @@ export default class AutomagicPanelTranslatorPreferences extends ExtensionPrefer
         });
         langGroup.add(explanationRow);
 
-        // Auto-copy toggle
-        const autoCopyRow = new Adw.SwitchRow({
-            title: 'Automatically copy translation to clipboard',
-            subtitle: 'Copy the translated text to the clipboard automatically.',
+        // Auto-copy toggles group
+        const autoCopyGroup = new Adw.PreferencesGroup({
+            title: 'Auto-copy Settings',
+            description: 'Configure when to automatically copy translations to clipboard',
         });
-        langGroup.add(autoCopyRow);
+        page.add(autoCopyGroup);
 
-        // Bind to settings
+        // Auto-copy to Main Language
+        const autoCopyMainRow = new Adw.SwitchRow({
+            title: 'Copy when translating to Main Language',
+            subtitle: 'Auto-copy when translating foreign text to your main language.',
+        });
+        autoCopyGroup.add(autoCopyMainRow);
+
         settings.bind(
             'auto-copy-to-primary',
-            autoCopyRow,
+            autoCopyMainRow,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+
+        // Auto-copy to Secondary Language
+        const autoCopySecondaryRow = new Adw.SwitchRow({
+            title: 'Copy when translating to Secondary Language',
+            subtitle: 'Auto-copy when translating from main language to a foreign language.',
+        });
+        autoCopyGroup.add(autoCopySecondaryRow);
+
+        settings.bind(
+            'auto-copy-to-secondary',
+            autoCopySecondaryRow,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
