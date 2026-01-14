@@ -103,16 +103,19 @@ const TranslatorIndicator = GObject.registerClass(
 
             const titleLabel = new St.Label({
                 text: 'Automagic Panel Translator',
-                style: 'font-weight: bold; font-size: 1.1em;',
+                style_class: 'automagic-header-title',
                 x_expand: true,
+                y_align: Clutter.ActorAlign.CENTER,
             });
             headerBox.add_child(titleLabel);
 
             const settingsButton = new St.Button({
-                style_class: 'button',
+                style_class: 'automagic-settings-button', // New flat style
                 can_focus: true,
+                x_align: Clutter.ActorAlign.END,
+                y_align: Clutter.ActorAlign.CENTER,
                 child: new St.Icon({
-                    icon_name: 'emblem-system-symbolic',
+                    icon_name: 'preferences-system-symbolic', // Standard gear icon
                     style_class: 'popup-menu-icon',
                 }),
             });

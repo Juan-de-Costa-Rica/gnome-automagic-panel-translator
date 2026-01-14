@@ -1,5 +1,30 @@
 /* Automagic Panel Translator Extension Styles */
 
+/* Header Title */
+.automagic-header-title {
+    font-weight: 800;
+    font-size: 1.1em;
+    padding-top: 5px;
+}
+
+/* Settings button - Flat/Ghost style */
+.automagic-settings-button {
+    background-color: transparent;
+    border-radius: 99px; /* Circular touch target */
+    padding: 6px;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.automagic-settings-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.automagic-settings-button:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 /* Language toggle buttons - default state */
 .automagic-lang-button {
     padding: 5px 10px;
