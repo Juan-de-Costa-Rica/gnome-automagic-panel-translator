@@ -2,8 +2,8 @@
   "uuid": "automagic-panel-translator@juan-de-costa-rica",
   "name": "Automagic Panel Translator",
   "description": "GNOME panel translator with automatic language detection, text selection support, and secure DeepL API key storage.",
-  "version": 3,
-  "version-name": "1.2",
+  "version": 4,
+  "version-name": "1.2.1",
   "shell-version": [
     "48",
     "49"

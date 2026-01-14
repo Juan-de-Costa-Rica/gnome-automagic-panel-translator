@@ -356,7 +356,6 @@ const TranslatorIndicator = GObject.registerClass(
                     button.remove_style_class_name('automagic-lang-button-active');
                 }
             }
-            this._updateButtonStates();
         }
 
         /**
