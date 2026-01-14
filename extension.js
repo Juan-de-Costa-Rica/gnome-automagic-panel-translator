@@ -32,12 +32,13 @@ const TranslatorIndicator = GObject.registerClass(
          * @param {Extension} extension - The extension instance
          */
         _init(extension) {
-            super._init(0.0, 'Automagic Panel Translator', false);
+            super._init(0.0, _('Automagic Panel Translator'), false);
 
             this._extension = extension;
             this._settings = extension.getSettings();
             this._translator = null;
             this._lastSourceText = ''; // Track last translated source text for smart auto-translate
+            this._currentSelection = ''; // Store the current selection to translate
             this._cancellable = new Gio.Cancellable(); // Cancellable for async operations to prevent memory leaks
 
             // Create panel icon
@@ -55,10 +56,11 @@ const TranslatorIndicator = GObject.registerClass(
 
             // No longer need to set focus since we removed the text entry
 
-            // Translate on menu open
+            // EGO COMPLIANCE: Don't translate on menu open.
+            // Just grab the selection to show the user what text will be sent to DeepL.
             this._menuOpenStateChangedId = this.menu.connect('open-state-changed', (menu, isOpen) => {
                 if (isOpen) {
-                    this._doTranslation();
+                    this._updateSelectionPreview();
                 } else {
                     // Menu is closing - clear the result and hide copied indicator
                     this._resultLabel.set_text('');
@@ -126,21 +128,54 @@ const TranslatorIndicator = GObject.registerClass(
 
             box.add_child(headerBox);
 
+            // Source text preview (EGO Compliance: User must see what is being sent)
+            const sourcePreviewLabel = new St.Label({
+                text: _('Selected Text:'),
+                style: 'font-weight: bold; margin-bottom: 5px;',
+            });
+            box.add_child(sourcePreviewLabel);
+
+            this._sourcePreview = new St.Label({
+                text: '',
+                style: 'background-color: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 4px; color: #ccc; font-style: italic; margin-bottom: 10px;',
+            });
+            this._sourcePreview.clutter_text.line_wrap = true;
+            this._sourcePreview.clutter_text.max_width_chars = 40;
+            this._sourcePreview.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+            box.add_child(this._sourcePreview);
+
             // Secondary language selector label
             const secondaryLangLabel = new St.Label({
-                text: _('Secondary Language:'),
+                text: _('Translate to:'),
                 style: 'font-weight: bold; margin-bottom: 5px;',
             });
             box.add_child(secondaryLangLabel);
 
             // Secondary language buttons row
             this._langButtonsBox = new St.BoxLayout({
-                style: 'margin-bottom: 10px; spacing: 5px;',
+                style: 'margin-bottom: 15px; spacing: 5px;',
             });
 
             this._langButtons = {};
 
             box.add_child(this._langButtonsBox);
+
+            // Main Action Button (EGO Compliance: Explicit user action for network request)
+            this._translateButton = new St.Button({
+                label: _('Translate Selection'),
+                style_class: 'automagic-translate-button',
+                x_expand: true,
+                can_focus: true,
+            });
+            this._translateButton.connect('clicked', () => {
+                if (this._currentSelection && this._currentSelection.trim() !== '') {
+                    this._performTranslation(this._currentSelection);
+                }
+            });
+            box.add_child(this._translateButton);
+
+            // Spacer
+            box.add_child(new St.Widget({style: 'height: 15px;'}));
 
             // Translation result label with copied indicator
             const resultHeaderBox = new St.BoxLayout({
@@ -208,7 +243,7 @@ const TranslatorIndicator = GObject.registerClass(
             // Initialize languages from settings with validation
             this._mainLanguage = this._settings.get_string('main-language');
             if (!SUPPORTED_LANGUAGES.includes(this._mainLanguage)) {
-                console.warn(`Automagic Panel Translator: Invalid main language ${this._mainLanguage}, using EN`);
+                // console.warn(`Automagic Panel Translator: Invalid main language ${this._mainLanguage}, using EN`);
                 this._mainLanguage = 'EN';
                 this._settings.set_string('main-language', 'EN');
             }
@@ -222,7 +257,6 @@ const TranslatorIndicator = GObject.registerClass(
                 this._rebuildLanguageButtons();
             });
         }
-
 
         /**
          * Rebuild language buttons from settings
@@ -260,7 +294,7 @@ const TranslatorIndicator = GObject.registerClass(
             // Validate language codes
             const validCodes = languageCodes.filter(code => {
                 if (!SUPPORTED_LANGUAGES.includes(code)) {
-                    console.warn(`Automagic Panel Translator: Invalid language code in settings: ${code}`);
+                    // console.warn(`Automagic Panel Translator: Invalid language code in settings: ${code}`);
                     return false;
                 }
                 return true;
@@ -268,7 +302,7 @@ const TranslatorIndicator = GObject.registerClass(
 
             // If no valid codes, use default
             if (validCodes.length === 0) {
-                console.warn('Automagic Panel Translator: No valid language codes, using default ES');
+                // console.warn('Automagic Panel Translator: No valid language codes, using default ES');
                 validCodes.push('ES');
             }
 
@@ -283,10 +317,8 @@ const TranslatorIndicator = GObject.registerClass(
                     this._currentSecondaryLang = code;
                     this._settings.set_string('last-used-language', code);
                     this._updateButtonStates();
-                    // Only re-translate if we have source text already
-                    if (this._lastSourceText && this._lastSourceText.trim() !== '') {
-                        this._performTranslation(this._lastSourceText);
-                    }
+                    // Don't re-translate automatically on button change (EGO Compliance)
+                    // The user will see the new target language reflected in their next click
                 });
                 this._langButtons[code] = button;
                 this._langButtonsBox.add_child(button);
@@ -337,7 +369,7 @@ const TranslatorIndicator = GObject.registerClass(
                 this._translator = new DeepLTranslator(apiKey);
 
             } catch (error) {
-                console.error('Automagic Panel Translator: Failed to initialize translator:', error);
+                // console.error('Automagic Panel Translator: Failed to initialize translator:', error);
                 // Create translator with empty key as fallback
                 if (this._translator) {
                     this._translator.destroy();
@@ -346,85 +378,92 @@ const TranslatorIndicator = GObject.registerClass(
             }
         }
 
-        _doTranslation() {
-            // STRICT: Only use PRIMARY selection (highlighted text).
-            // Do NOT fallback to CLIPBOARD (Ctrl+C) to prevent accidental translation of sensitive clipboard data.
-                        St.Clipboard.get_default().get_text(
-                            St.ClipboardType.PRIMARY,
-                            (clipboard, primaryText) => {
-                                if (!primaryText || primaryText.trim() === '') {
-                                    this._resultLabel.set_text(_('Select text to translate.'));
-                                    return;
-                                }
-                                this._performTranslation(primaryText);
-                            }
-                        );
+        /**
+         * Update the selection preview in the popup
+         * (EGO Compliance: User must know what text is being sent to the server)
+         * @private
+         */
+        _updateSelectionPreview() {
+            St.Clipboard.get_default().get_text(
+                St.ClipboardType.PRIMARY,
+                (clipboard, primaryText) => {
+                    this._currentSelection = primaryText ? primaryText.trim() : '';
+                    if (!this._currentSelection) {
+                        this._sourcePreview.set_text(_('(No text selected)'));
+                        this._translateButton.set_reactive(false);
+                    } else {
+                        this._sourcePreview.set_text(this._currentSelection);
+                        this._translateButton.set_reactive(true);
                     }
-            
-                    /**
-                     * Perform translation with smart language detection
-                     * 
-                     * Smart logic:
-                     * - If detected language ≠ main language → translate to main (reading mode)
-                     * - If detected language = main language → translate to secondary (writing mode)
-                     *
-                     * @param {string} sourceText - Text to translate
-                     * @private
-                     */
-                    async _performTranslation(sourceText) {
-                        if (!sourceText || sourceText.trim() === '') {
-                            // console.warn('Automagic Panel Translator: Empty source text for translation');
-                            this._resultLabel.set_text(_('No text found. Select or copy text first.'));
-                            return;
-                        }
-            
-                        // Store source text for comparison on next menu open
-                        this._lastSourceText = sourceText.trim();
-            
-                        // Show loading state
-                        this._resultLabel.set_text(_('Translating...'));
-            
-                        try {
-                        // First translation: auto-detect source, translate to secondary language
-                            const result = await this._translator.translate(
-                                sourceText,
-                                null, // Auto-detect source language
-                                this._currentSecondaryLang,
-                                this._cancellable
-                            );
-            
-                            // Smart logic: if detected language is NOT our main language,
-                            // re-translate to main language (reading mode)
-                            if (result.detectedSourceLang && result.detectedSourceLang !== this._mainLanguage) {
-                            // Detected foreign language -> translate to main language
-                                const finalResult = await this._translator.translate(
-                                    sourceText,
-                                    null,
-                                    this._mainLanguage,
-                                    this._cancellable
-                                );
-            
-                                this._resultLabel.set_text(finalResult.text);
-                                this._lastTranslation = finalResult.text;
-                                this._autoCopyToClipboard(finalResult.text, true);
-                            } else {
-                            // Detected main language -> use translation to secondary (writing mode)
-                                this._resultLabel.set_text(result.text);
-                                this._lastTranslation = result.text;
-                                this._autoCopyToClipboard(result.text, false);
-                            }
-                        } catch (error) {
-                        // Handle cancellation silently
-                            if (error.message === 'Translation cancelled') {
-                                // console.log('Automagic Panel Translator: Translation cancelled');
-                                return;
-                            }
-            
-                            // Log and display other errors
-                            // console.error('Automagic Panel Translator: Translation failed:', error);
-                            this._resultLabel.set_text(_('Error: %s').format(error.message));
-                        }
-                    }
+                }
+            );
+        }
+
+        /**
+         * Perform translation with smart language detection
+         *
+         * Smart logic:
+         * - If detected language ≠ main language → translate to main (reading mode)
+         * - If detected language = main language → translate to secondary (writing mode)
+         *
+         * @param {string} sourceText - Text to translate
+         * @private
+         */
+        async _performTranslation(sourceText) {
+            if (!sourceText || sourceText.trim() === '') {
+                // console.warn('Automagic Panel Translator: Empty source text for translation');
+                this._resultLabel.set_text(_('No text found. Select or copy text first.'));
+                return;
+            }
+
+            // Store source text for comparison on next menu open
+            this._lastSourceText = sourceText.trim();
+
+            // Show loading state
+            this._resultLabel.set_text(_('Translating...'));
+
+            try {
+            // First translation: auto-detect source, translate to secondary language
+                const result = await this._translator.translate(
+                    sourceText,
+                    null, // Auto-detect source language
+                    this._currentSecondaryLang,
+                    this._cancellable
+                );
+
+                // Smart logic: if detected language is NOT our main language,
+                // re-translate to main language (reading mode)
+                if (result.detectedSourceLang && result.detectedSourceLang !== this._mainLanguage) {
+                // Detected foreign language -> translate to main language
+                    const finalResult = await this._translator.translate(
+                        sourceText,
+                        null,
+                        this._mainLanguage,
+                        this._cancellable
+                    );
+
+                    this._resultLabel.set_text(finalResult.text);
+                    this._lastTranslation = finalResult.text;
+                    this._autoCopyToClipboard(finalResult.text, true);
+                } else {
+                // Detected main language -> use translation to secondary (writing mode)
+                    this._resultLabel.set_text(result.text);
+                    this._lastTranslation = result.text;
+                    this._autoCopyToClipboard(result.text, false);
+                }
+            } catch (error) {
+            // Handle cancellation silently
+                if (error.message === 'Translation cancelled') {
+                    // console.log('Automagic Panel Translator: Translation cancelled');
+                    return;
+                }
+
+                // Log and display other errors
+                // console.error('Automagic Panel Translator: Translation failed:', error);
+                this._resultLabel.set_text(_('Error: %s').format(error.message));
+            }
+        }
+
         /**
          * Copy text to clipboard and show visual feedback
          * @param {string} text - Text to copy
