@@ -252,7 +252,7 @@ const TranslatorIndicator = GObject.registerClass(
             }
 
             // Codes changed, do full rebuild
-            console.log('Automagic Panel Translator: Rebuilding language buttons');
+            // console.log('Automagic Panel Translator: Rebuilding language buttons');
 
             // Clear existing buttons
             this._langButtonsBox.destroy_all_children();
@@ -417,7 +417,7 @@ const TranslatorIndicator = GObject.registerClass(
             } catch (error) {
             // Handle cancellation silently
                 if (error.message === 'Translation cancelled') {
-                    console.log('Automagic Panel Translator: Translation cancelled');
+                    // console.log('Automagic Panel Translator: Translation cancelled');
                     return;
                 }
 
